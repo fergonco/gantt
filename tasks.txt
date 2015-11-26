@@ -1,0 +1,18 @@
+* optimizar acceso a tarea a partir del nombre
+* optimizar el arrastrado de tareas
+renombrar
+guardar
+añadir tarea
+eliminar tarea
+filtrar por color (crear una función test con la que se recorre cada elemento)
+mostrar tareas del día
+mover tarea arriba y a abajo
+desplegar todos
+
+mostrar árbol de subtareas
+estimar subtareas y mostrar estimación en tarea
+contador en subtarea: mostrar contador (exclusivo) actual, arrancar, parar
+mostrar tiempo consumido respecto al 100% estimación
+marcar tarea como terminada
+mostrar suma tiempo estimado de subtareas completadas
+

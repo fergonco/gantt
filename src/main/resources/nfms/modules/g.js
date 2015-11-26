@@ -5,6 +5,9 @@ define([ "utils", "d3.v3" ], function(utils) {
 	var svg;
 	var nameIndicesMap = {};
 
+	var xScale;
+	var yScale;
+
 	var ROOT = {
 		"taskName" : "root",
 		"tasks" : null
@@ -107,50 +110,10 @@ define([ "utils", "d3.v3" ], function(utils) {
 		.attr("width", width + margin.left + margin.right)//
 		.attr("height", height + margin.top + margin.bottom)//
 		.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-	}
+	};
 
-	var updateChart = function(plan) {
-		ROOT.tasks = plan;
-		var timeDomain = getDates(ROOT);
-		var taskNames = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, NAME_EXTRACTOR);
-		var taskIndices = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, function(task,
-				index) {
-			nameIndicesMap[task.taskName] = index;
-		});
-
-		height = taskNames.length * 34 + 70;
-		d3.select(".chart").attr("height", height);
-		d3.select(".chart g").attr("height", height);
-
-		var xScale = d3.time.scale().domain(timeDomain).range([ 0, width ]).clamp(false);
-		var yScale = d3.scale.ordinal().domain(taskNames).rangeRoundBands(
-				[ 0, height - margin.top - margin.bottom ], .1);
-
-		// Weekends
-		var dayX = function(d) {
-			return xScale(d);
-		};
-		var dayY = function(d) {
-			return 0;
-		};
-		var dayHeight = function(d) {
-			return height - margin.top - margin.bottom;
-		};
-		var saturdays = getWeekends(timeDomain);
-		var weekendSelection = svg.selectAll(".weekend").data(saturdays);
-		weekendSelection.exit().remove();
-		weekendSelection.enter().append("rect");
-		weekendSelection.attr("class", "weekend").attr("x", dayX).attr("y", dayY).attr("width",
-				function(d) {
-					return xScale(new Date(d.getTime() + 2 * utils.DAY_MILLIS)) - xScale(d);
-				}).attr("height", dayHeight);
-
-		// Tasks
-		var taskSelection = svg.selectAll(".tasks").data(taskNames);
-		taskSelection.exit().remove();
-		taskSelection.enter().append("rect");
-
-		taskSelection//
+	var updateTask = function(selection) {
+		selection//
 		.attr("rx", 5)//
 		.attr("ry", 5)//
 		.attr("class", function(d) {
@@ -189,6 +152,73 @@ define([ "utils", "d3.v3" ], function(utils) {
 			}
 		});
 
+	};
+
+	var updateTaskHandlers = function(selection) {
+		var handleWidth = 5;
+		selection//
+		.attr("rx", 5)//
+		.attr("ry", 5)//
+		.attr("class", "taskdates") //
+		.attr("y", 0)//
+		.attr("transform", function(d) {
+			var task = getTask(ROOT, d.taskName);
+			var dates = getDates(task);
+			var x = xScale(dates[d.dateIndex]);
+			if (d.dateIndex == 1) {
+				x -= handleWidth;
+			}
+			return "translate(" + x + "," + yScale(d.taskName) + ")";
+		})//
+		.attr("height", function(d) {
+			return yScale.rangeBand();
+		})//
+		.attr("width", handleWidth);
+	}
+
+	var updateChart = function(plan) {
+		ROOT.tasks = plan;
+		var timeDomain = getDates(ROOT);
+		var taskNames = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, NAME_EXTRACTOR);
+		var taskIndices = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, function(task,
+				index) {
+			nameIndicesMap[task.taskName] = index;
+		});
+
+		height = taskNames.length * 34 + 70;
+		d3.select(".chart").attr("height", height);
+		d3.select(".chart g").attr("height", height);
+
+		xScale = d3.time.scale().domain(timeDomain).range([ 0, width ]).clamp(false);
+		yScale = d3.scale.ordinal().domain(taskNames).rangeRoundBands(
+				[ 0, height - margin.top - margin.bottom ], .1);
+
+		// Weekends
+		var dayX = function(d) {
+			return xScale(d);
+		};
+		var dayY = function(d) {
+			return 0;
+		};
+		var dayHeight = function(d) {
+			return height - margin.top - margin.bottom;
+		};
+		var saturdays = getWeekends(timeDomain);
+		var weekendSelection = svg.selectAll(".weekend").data(saturdays);
+		weekendSelection.exit().remove();
+		weekendSelection.enter().append("rect");
+		weekendSelection.attr("class", "weekend").attr("x", dayX).attr("y", dayY).attr("width",
+				function(d) {
+					return xScale(new Date(d.getTime() + 2 * utils.DAY_MILLIS)) - xScale(d);
+				}).attr("height", dayHeight);
+
+		// Tasks
+		var taskSelection = svg.selectAll(".tasks").data(taskNames);
+		taskSelection.exit().remove();
+		taskSelection.enter().append("rect");
+
+		updateTask(taskSelection);
+
 		// drag&drop tasks
 		var dx;
 		var sourceX;
@@ -206,6 +236,11 @@ define([ "utils", "d3.v3" ], function(utils) {
 			newDate.setMilliseconds(0);
 			task.startDate = newDate;
 			task.endDate = new Date(newDate.getTime() + length);
+			updateTask(d3.select(this));
+			updateTaskHandlers(d3.selectAll(".taskdates").filter(function(d2) {
+				return d2.taskName == d;
+			}));
+		}).on("dragend", function(d) {
 			updateChart(plan);
 		});
 		taskSelection.call(drag);
@@ -224,25 +259,7 @@ define([ "utils", "d3.v3" ], function(utils) {
 		taskDatesSelection.exit().remove();
 		taskDatesSelection.enter().append("rect");
 
-		var handleWidth = 5;
-		taskDatesSelection//
-		.attr("rx", 5)//
-		.attr("ry", 5)//
-		.attr("class", "taskdates") //
-		.attr("y", 0)//
-		.attr("transform", function(d) {
-			var task = getTask(ROOT, d.taskName);
-			var dates = getDates(task);
-			var x = xScale(dates[d.dateIndex]);
-			if (d.dateIndex == 1) {
-				x -= handleWidth;
-			}
-			return "translate(" + x + "," + yScale(d.taskName) + ")";
-		})//
-		.attr("height", function(d) {
-			return yScale.rangeBand();
-		})//
-		.attr("width", handleWidth);
+		updateTaskHandlers(taskDatesSelection);
 
 		// drag&drop task date handlers
 		drag = d3.behavior.drag().on("dragstart", function(d) {
@@ -265,6 +282,11 @@ define([ "utils", "d3.v3" ], function(utils) {
 			} else {
 				task.endDate = newDate;
 			}
+			updateTaskHandlers(d3.select(this));
+			updateTask(d3.selectAll(".tasks").filter(function(d2) {
+				return d2 == d.taskName;
+			}));
+		}).on("dragend", function(d) {
 			updateChart(plan);
 		});
 		taskDatesSelection.call(drag);
@@ -291,7 +313,7 @@ define([ "utils", "d3.v3" ], function(utils) {
 				xAxis1);
 		var xAxis2 = d3.svg.axis().scale(xScale).orient("top").tickFormat(d3.time.format("%d/%m"))
 				.tickSize(1).tickPadding(8);
-		svg.append("g").attr("class", "x axis").call(xAxis2);
+		svg.append("g").attr("class", "x axis").transition().call(xAxis2);
 
 		var zoom = d3.behavior.zoom();
 		svg.call(zoom);

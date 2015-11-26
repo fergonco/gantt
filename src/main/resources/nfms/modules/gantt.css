@@ -1,0 +1,59 @@
+.bar-short {
+	fill: #33b5e5;
+}
+
+.bar-nachundnach {
+	fill: #CC0000;
+}
+
+.bar-abends {
+	fill: #669900;
+}
+
+.bar-morgens {
+	fill: #ffbb33;
+}
+
+.bar-freitag {
+	fill: #770077;
+}
+
+.bar-nachmittags {
+	fill: #ee55aa;
+}
+
+.bar-gruppe {
+	fill: #bbbbbb;
+	stroke: #000000;
+	stroke-width: 1px;
+}
+
+.bar-gruppe-closed {
+	fill: #000000;
+}
+
+.weekend {
+	fill: #bbbbbb;
+}
+
+.weekend {
+	stroke: #bbbbbb;
+	stroke-width: 1px;
+	fill: #bbbbbb;
+}
+
+.taskdates {
+	stroke: #000000;
+	stroke-width: 1px;
+	fill: #777777;
+}
+
+.today {
+	stroke: #770000;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.outer {
+	overflow: auto;
+}

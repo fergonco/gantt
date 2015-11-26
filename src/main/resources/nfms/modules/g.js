@@ -3,6 +3,7 @@ define([ "utils", "d3.v3" ], function(utils) {
 	var height;
 	var width;
 	var svg;
+	var nameIndicesMap = {};
 
 	var ROOT = {
 		"taskName" : "root",
@@ -29,13 +30,18 @@ define([ "utils", "d3.v3" ], function(utils) {
 	};
 
 	var visitTasks = function(task, filter, visitChildren, extractor) {
+		return visitTasksWithIndex(task, [], filter, visitChildren, extractor);
+	}
+
+	var visitTasksWithIndex = function(task, index, filter, visitChildren, extractor) {
 		var ret = [];
 		if (filter(task)) {
-			ret.push(extractor(task));
+			ret = ret.concat(extractor(task, index));
 		}
 		if (task.hasOwnProperty("tasks") && visitChildren(task)) {
 			for (var i = 0; i < task.tasks.length; i++) {
-				ret = ret.concat(visitTasks(task.tasks[i], filter, visitChildren, extractor));
+				ret = ret.concat(visitTasksWithIndex(task.tasks[i], index.concat([ i ]), filter,
+						visitChildren, extractor));
 			}
 		}
 
@@ -56,14 +62,11 @@ define([ "utils", "d3.v3" ], function(utils) {
 		return [ min, max ];
 	}
 
-	var getTask = function(tasks, taskName) {
-		var ret = null;
-		for (var i = 0; i < tasks.length && ret == null; i++) {
-			if (tasks[i].taskName == taskName) {
-				ret = tasks[i];
-			} else if (tasks[i].hasOwnProperty("tasks")) {
-				ret = getTask(tasks[i].tasks, taskName);
-			}
+	var getTask = function(root, taskName) {
+		var taskIndices = nameIndicesMap[taskName];
+		var ret = root;
+		for (var i = 0; i < taskIndices.length; i++) {
+			ret = ret.tasks[taskIndices[i]];
 		}
 		return ret;
 	};
@@ -90,7 +93,8 @@ define([ "utils", "d3.v3" ], function(utils) {
 		};
 		height = 1200;// document.body.clientHeight - margin.top -
 		// margin.bottom- 5;
-		width = document.body.clientWidth - margin.right - margin.left - 5;
+		width = 800;// document.body.clientWidth - margin.right - margin.left -
+		// 5;
 
 		d3.select("body").append("div").attr("class", "outer")//
 		.attr("width", width).attr("height", "99%");
@@ -109,6 +113,10 @@ define([ "utils", "d3.v3" ], function(utils) {
 		ROOT.tasks = plan;
 		var timeDomain = getDates(ROOT);
 		var taskNames = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, NAME_EXTRACTOR);
+		var taskIndices = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, function(task,
+				index) {
+			nameIndicesMap[task.taskName] = index;
+		});
 
 		height = taskNames.length * 34 + 70;
 		d3.select(".chart").attr("height", height);
@@ -146,7 +154,7 @@ define([ "utils", "d3.v3" ], function(utils) {
 		.attr("rx", 5)//
 		.attr("ry", 5)//
 		.attr("class", function(d) {
-			var task = getTask(plan, d);
+			var task = getTask(ROOT, d);
 			var status = task.status;
 			if (status == "gruppe") {
 				if (task.hasOwnProperty("folded") && task.folded == true) {
@@ -157,17 +165,17 @@ define([ "utils", "d3.v3" ], function(utils) {
 		}) //
 		.attr("y", 0)//
 		.attr("transform", function(d) {
-			var dates = getDates(getTask(plan, d));
+			var dates = getDates(getTask(ROOT, d));
 			return "translate(" + xScale(dates[0]) + "," + yScale(d) + ")";
 		})//
 		.attr("height", function(d) {
 			return yScale.rangeBand();
 		})//
 		.attr("width", function(d) {
-			var dates = getDates(getTask(plan, d));
+			var dates = getDates(getTask(ROOT, d));
 			return (xScale(dates[1]) - xScale(dates[0]));
 		}).on("click", function(d) {
-			var task = getTask(plan, d);
+			var task = getTask(ROOT, d);
 			if (task.hasOwnProperty("tasks")) {
 				var folded;
 				if (task.hasOwnProperty("folded")) {
@@ -185,12 +193,12 @@ define([ "utils", "d3.v3" ], function(utils) {
 		var dx;
 		var sourceX;
 		var drag = d3.behavior.drag().on("dragstart", function(d) {
-			var task = getTask(plan, d);
+			var task = getTask(ROOT, d);
 			dx = 0;
 			sourceX = xScale(task.startDate);
 		}).on("drag", function(d) {
 			dx += d3.event.dx;
-			var task = getTask(plan, d);
+			var task = getTask(ROOT, d);
 			var length = task.endDate.getTime() - task.startDate.getTime();
 			var newDate = xScale.invert(sourceX + dx);
 			newDate.setHours(0);
@@ -203,18 +211,15 @@ define([ "utils", "d3.v3" ], function(utils) {
 		taskSelection.call(drag);
 
 		// Tasks date handlers
-		var taskDates = [];
-		for (var i = 0; i < taskNames.length; i++) {
-			var task = getTask(plan, taskNames[i]);
-			taskDates.push({
+		var taskDates = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, function(task) {
+			return [ {
 				"taskName" : task.taskName,
 				"dateIndex" : 0
-			});
-			taskDates.push({
+			}, {
 				"taskName" : task.taskName,
 				"dateIndex" : 1
-			});
-		}
+			} ];
+		});
 		var taskDatesSelection = svg.selectAll(".taskdates").data(taskDates);
 		taskDatesSelection.exit().remove();
 		taskDatesSelection.enter().append("rect");
@@ -226,7 +231,8 @@ define([ "utils", "d3.v3" ], function(utils) {
 		.attr("class", "taskdates") //
 		.attr("y", 0)//
 		.attr("transform", function(d) {
-			var dates = getDates(getTask(plan, d.taskName));
+			var task = getTask(ROOT, d.taskName);
+			var dates = getDates(task);
 			var x = xScale(dates[d.dateIndex]);
 			if (d.dateIndex == 1) {
 				x -= handleWidth;
@@ -240,7 +246,7 @@ define([ "utils", "d3.v3" ], function(utils) {
 
 		// drag&drop task date handlers
 		drag = d3.behavior.drag().on("dragstart", function(d) {
-			var task = getTask(plan, d.taskName);
+			var task = getTask(ROOT, d.taskName);
 			dx = 0;
 			if (d.dateIndex == 0) {
 				sourceX = xScale(task.startDate);
@@ -249,7 +255,7 @@ define([ "utils", "d3.v3" ], function(utils) {
 			}
 		}).on("drag", function(d) {
 			dx += d3.event.dx;
-			var task = getTask(plan, d.taskName);
+			var task = getTask(ROOT, d.taskName);
 			var newDate = xScale.invert(sourceX + dx);
 			newDate.setHours(0);
 			newDate.setMinutes(0);

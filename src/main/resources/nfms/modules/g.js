@@ -4,43 +4,57 @@ define([ "utils", "d3.v3" ], function(utils) {
 	var width;
 	var svg;
 
-	var getDates = function(task) {
-		var taskDates = null;
-		if (task.hasOwnProperty("tasks")) {
-			taskDates = minMaxDate(task.tasks);
-		} else {
-			taskDates = [ task.startDate, task.endDate ];
-		}
-
-		return taskDates;
+	var ROOT = {
+		"taskName" : "root",
+		"tasks" : null
 	}
-	var minMaxDate = function(tasks) {
-		var min = null;
-		var max = null;
-		for (var i = 0; i < tasks.length; i++) {
-			var taskDates = getDates(tasks[i]);
-			if (min == null || min > taskDates[0]) {
-				min = taskDates[0];
-			}
-			if (max == null || max < taskDates[1]) {
-				max = taskDates[1];
-			}
-		}
 
-		return [ min, max ];
-	}
-	var names = function(tasks) {
+	var FILTER_ALL = function(task) {
+		return task != ROOT;
+	};
+	var FILTER_WITH_DATE = function(task) {
+		return task.hasOwnProperty("startDate") && task.hasOwnProperty("endDate");
+	};
+
+	var VISIT_ALL_CHILDREN = function(task) {
+		return true;
+	};
+
+	var VISIT_UNFOLDED_CHILDREN = function(task) {
+		return !task.hasOwnProperty("folded") || !task.folded;
+	};
+
+	var NAME_EXTRACTOR = function(task) {
+		return task.taskName;
+	};
+
+	var visitTasks = function(task, filter, visitChildren, extractor) {
 		var ret = [];
-		for (var i = 0; i < tasks.length; i++) {
-			ret.push(tasks[i].taskName);
-			if (tasks[i].hasOwnProperty("tasks")
-					&& (!tasks[i].hasOwnProperty("folded") || !tasks[i].folded)) {
-				ret = ret.concat(names(tasks[i].tasks));
+		if (filter(task)) {
+			ret.push(extractor(task));
+		}
+		if (task.hasOwnProperty("tasks") && visitChildren(task)) {
+			for (var i = 0; i < task.tasks.length; i++) {
+				ret = ret.concat(visitTasks(task.tasks[i], filter, visitChildren, extractor));
 			}
 		}
 
 		return ret;
-	};
+	}
+
+	var getDates = function(task) {
+		var min = null;
+		var max = null;
+		var timeDomain = visitTasks(task, FILTER_WITH_DATE, VISIT_ALL_CHILDREN, function(task) {
+			if (min == null || min > task.startDate) {
+				min = task.startDate;
+			}
+			if (max == null || max < task.endDate) {
+				max = task.endDate;
+			}
+		});
+		return [ min, max ];
+	}
 
 	var getTask = function(tasks, taskName) {
 		var ret = null;
@@ -92,8 +106,9 @@ define([ "utils", "d3.v3" ], function(utils) {
 	}
 
 	var updateChart = function(plan) {
-		var timeDomain = minMaxDate(plan);
-		var taskNames = names(plan);
+		ROOT.tasks = plan;
+		var timeDomain = getDates(ROOT);
+		var taskNames = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, NAME_EXTRACTOR);
 
 		height = taskNames.length * 34 + 70;
 		d3.select(".chart").attr("height", height);

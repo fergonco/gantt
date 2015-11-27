@@ -152,7 +152,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		var saturdays = getWeekends(timeDomain);
 		var weekendSelection = svg.selectAll(".weekend").data(saturdays);
 		weekendSelection.exit().remove();
-		weekendSelection.enter().append("rect");
+		weekendSelection.enter().insert("rect", ":first-child");
 		weekendSelection.attr("class", "weekend").attr("x", dayX).attr("y", dayY).attr("width",
 				function(d) {
 					return xScale(new Date(d.getTime() + 2 * utils.DAY_MILLIS)) - xScale(d);

@@ -1,4 +1,4 @@
-define([ "text!plan.json", "g", "utils" ], function(plan, g, utils) {
+define([ "text!plan.json", "g", "utils", "message-bus" ], function(plan, g, utils, bus) {
 	var plan = JSON.parse(plan);
 	var taskNames = [];
 
@@ -36,7 +36,7 @@ define([ "text!plan.json", "g", "utils" ], function(plan, g, utils) {
 		"nachmittags" : "bar-nachmittags",
 		"group" : "bar-group"
 	};
-	g.create();
-	g.updateChart(plan);
+
+	bus.send("plan", [ plan ]);
 
 });

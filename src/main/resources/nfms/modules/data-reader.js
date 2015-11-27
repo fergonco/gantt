@@ -3,24 +3,37 @@ define([ "text!plan.json", "utils", "message-bus", "gantt" ], function(plan, uti
 	var taskNames = [];
 
 	var processTask = function(task) {
-		if (!task.hasOwnProperty("status")) {
-			task["status"] = "short";
+		task["getStatus"] = function() {
+			if (task.hasOwnProperty("tasks")) {
+				return "gruppe";
+			} else if (task.hasOwnProperty("status")) {
+				return task.status;
+			} else {
+				return "short";
+			}
 		}
 
 		taskNames.push(task["taskName"]);
 
 		if (task.hasOwnProperty("tasks")) {
-			task["status"] = "gruppe";
 			for (var i = 0; i < task.tasks.length; i++) {
 				processTask(task.tasks[i]);
 			}
 		} else {
 			if (task.hasOwnProperty("startDate")) {
-				task["startDate"] = new Date(task["startDate"]);
-				task["endDate"] = new Date(task["endDate"]);
+				task["getStartDate"] = function() {
+					return new Date(task["startDate"]);
+				}
+				task["getEndDate"] = function() {
+					return new Date(task["endDate"]);
+				}
 			} else {
-				task["startDate"] = utils.today;
-				task["endDate"] = new Date(utils.today.getTime() + utils.DAY_MILLIS);
+				task["getStartDate"] = function() {
+					return utils.today;
+				}
+				task["getEndDate"] = function() {
+					return new Date(utils.today.getTime() + utils.DAY_MILLIS);
+				}
 			}
 		}
 	}

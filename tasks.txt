@@ -1,9 +1,7 @@
 * optimizar acceso a tarea a partir del nombre
 * optimizar el arrastrado de tareas
 * renombrar
-guardar
-- Crear un atributo derived y colgar todo de ahí
-- Meter todo lo derivado en el tree y como función
+* guardar
 
 añadir tarea
 eliminar tarea

@@ -8,7 +8,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	var yScale;
 
 	var FILTER_WITH_DATE = function(task) {
-		return task.hasOwnProperty("startDate") && task.hasOwnProperty("endDate");
+		return task.hasOwnProperty("getStartDate") && task.hasOwnProperty("getEndDate");
 	};
 
 	var getDates = function(task) {
@@ -16,11 +16,11 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		var max = null;
 		var timeDomain = taskTree.visitTasks(task, FILTER_WITH_DATE, taskTree.VISIT_ALL_CHILDREN,
 				function(task) {
-					if (min == null || min > task.startDate) {
-						min = task.startDate;
+					if (min == null || min > task.getStartDate()) {
+						min = task.getStartDate();
 					}
-					if (max == null || max < task.endDate) {
-						max = task.endDate;
+					if (max == null || max < task.getEndDate()) {
+						max = task.getEndDate();
 					}
 				});
 		return [ min, max ];
@@ -68,7 +68,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		.attr("ry", 5)//
 		.attr("class", function(d) {
 			var task = taskTree.getTask(d);
-			var status = task.status;
+			var status = task.getStatus();
 			if (status == "gruppe") {
 				if (task.hasOwnProperty("folded") && task.folded == true) {
 					status = "gruppe-closed";
@@ -171,17 +171,15 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		var drag = d3.behavior.drag().on("dragstart", function(d) {
 			var task = taskTree.getTask(d);
 			dx = 0;
-			sourceX = xScale(task.startDate);
+			sourceX = xScale(task.getStartDate());
 		}).on("drag", function(d) {
 			dx += d3.event.dx;
 			var task = taskTree.getTask(d);
-			var length = task.endDate.getTime() - task.startDate.getTime();
-			var newDate = xScale.invert(sourceX + dx);
-			newDate.setHours(0);
-			newDate.setMinutes(0);
-			newDate.setMilliseconds(0);
-			task.startDate = newDate;
-			task.endDate = new Date(newDate.getTime() + length);
+			var length = task.getEndDate().getTime() - task.getStartDate().getTime();
+			var newStartDate = xScale.invert(sourceX + dx);
+			task.startDate = utils.formatDate(newStartDate);
+			task.endDate = utils.formatDate(new Date(newStartDate.getTime() + length));
+
 			updateTask(d3.select(this));
 			updateTaskHandlers(d3.selectAll(".taskdates").filter(function(d2) {
 				return d2.taskName == d;
@@ -213,21 +211,18 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			var task = taskTree.getTask(d.taskName);
 			dx = 0;
 			if (d.dateIndex == 0) {
-				sourceX = xScale(task.startDate);
+				sourceX = xScale(task.getStartDate());
 			} else {
-				sourceX = xScale(task.endDate);
+				sourceX = xScale(task.getEndDate());
 			}
 		}).on("drag", function(d) {
 			dx += d3.event.dx;
 			var task = taskTree.getTask(d.taskName);
 			var newDate = xScale.invert(sourceX + dx);
-			newDate.setHours(0);
-			newDate.setMinutes(0);
-			newDate.setMilliseconds(0);
 			if (d.dateIndex == 0) {
-				task.startDate = newDate;
+				task.startDate = utils.formatDate(newDate);
 			} else {
-				task.endDate = newDate;
+				task.endDate = utils.formatDate(newDate);
 			}
 			updateTaskHandlers(d3.select(this));
 			updateTask(d3.selectAll(".tasks").filter(function(d2) {

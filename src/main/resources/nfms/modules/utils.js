@@ -4,8 +4,13 @@ define([], function() {
 	today.setMinutes(0);
 	today.setMilliseconds(0);
 
+	var formatDate = function(date) {
+		return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+	}
+
 	return {
 		"DAY_MILLIS" : 24 * 60 * 60 * 1000,
-		"today" : today
+		"today" : today,
+		"formatDate" : formatDate
 	}
 });

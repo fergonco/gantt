@@ -1,6 +1,6 @@
 * optimizar acceso a tarea a partir del nombre
 * optimizar el arrastrado de tareas
-renombrar
+* renombrar
 guardar
 añadir tarea
 eliminar tarea

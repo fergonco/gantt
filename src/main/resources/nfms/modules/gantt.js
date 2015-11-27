@@ -8,7 +8,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	var yScale;
 
 	var FILTER_WITH_DATE = function(task) {
-		return task.hasOwnProperty("getStartDate") && task.hasOwnProperty("getEndDate");
+		return !task.hasOwnProperty("tasks");
 	};
 
 	var getDates = function(task) {

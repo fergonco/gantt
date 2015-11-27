@@ -1,4 +1,4 @@
-define([ "utils", "message-bus", "task-tree", "d3.v3" ], function(utils, bus, taskTree) {
+define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskTree) {
 	var margin;
 	var height;
 	var width;

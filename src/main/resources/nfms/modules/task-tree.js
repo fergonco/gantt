@@ -63,6 +63,24 @@ define([ "message-bus" ], function(bus) {
 		bus.send("refresh-tree");
 	});
 
+	bus.listen("save", function() {
+		bus.send("show-wait-mask", "Salvando...");
+		bus.send("ajax", {
+			type : 'POST',
+			url : 'save-plan',
+			contentType : "application/json",
+			data : JSON.stringify(ROOT.tasks),
+			success : function(data, textStatus, jqXHR) {
+				bus.send("info", "Guardado");
+			},
+			errorMsg : "No se salvó",
+			complete : function() {
+				bus.send("hide-wait-mask");
+			}
+		});
+
+	});
+
 	return {
 		"getTask" : getTask,
 		"ROOT" : ROOT,

@@ -2,6 +2,8 @@ define([ "message-bus" ], function(bus) {
 
 	var nameIndicesMap = {};
 
+	var userFilter = null;
+
 	var ROOT = {
 		"taskName" : "root",
 		"tasks" : null
@@ -29,7 +31,7 @@ define([ "message-bus" ], function(bus) {
 
 	var visitTasksWithIndex = function(task, index, filter, visitChildren, extractor) {
 		var ret = [];
-		if (filter(task)) {
+		if (filter(task) && (userFilter == null || userFilter(task))) {
 			ret = ret.concat(extractor(task, index));
 		}
 		if (task.hasOwnProperty("tasks") && visitChildren(task)) {
@@ -60,6 +62,11 @@ define([ "message-bus" ], function(bus) {
 
 	bus.listen("plan", function(e, plan) {
 		ROOT.tasks = plan;
+		bus.send("refresh-tree");
+	});
+
+	bus.listen("filter", function(e, newFilter) {
+		userFilter = newFilter;
 		bus.send("refresh-tree");
 	});
 

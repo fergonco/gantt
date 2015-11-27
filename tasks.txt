@@ -12,9 +12,9 @@ añadir subtarea
 eliminar subtarea
 contador en subtarea: mostrar contador (exclusivo) actual, arrancar, parar
 
-filtrar por color (crear una función test con la que se recorre cada elemento)
-mostrar tareas del día
-mover tarea arriba y a abajo
+* filtrar por hoy
+* filtrar por status
+mover tarea arriba y abajo
 
 estimar subtareas y mostrar estimación en tarea
 mostrar tiempo consumido respecto al 100% estimación

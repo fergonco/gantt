@@ -1,4 +1,4 @@
-define([ "text!plan.json", "utils", "message-bus", "gantt" ], function(plan, utils, bus) {
+define([ "text!../plan", "utils", "message-bus", "gantt" ], function(plan, utils, bus) {
 	var plan = JSON.parse(plan);
 
 	var processTask = function(task) {

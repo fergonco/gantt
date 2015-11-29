@@ -74,7 +74,7 @@ define([ "message-bus" ], function(bus) {
 		bus.send("show-wait-mask", "Salvando...");
 		bus.send("ajax", {
 			type : 'POST',
-			url : 'save-plan',
+			url : 'plan',
 			contentType : "application/json",
 			data : JSON.stringify(ROOT.tasks),
 			success : function(data, textStatus, jqXHR) {

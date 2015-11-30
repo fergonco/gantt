@@ -1,0 +1,2 @@
+refresh-tree: Signal that the tree should be refreshed
+data-ready: task-tree has refreshed it's structures and can be accessed safely

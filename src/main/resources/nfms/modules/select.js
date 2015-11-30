@@ -14,7 +14,6 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 
 	var updateSelection = function() {
 		var selectedNames = getSelectedNames();
-		console.log(selectedNames);
 		var selectedTasksJoin = d3.select(".gantt-chart").selectAll(".taskSelection").data(
 				selectedNames);
 		selectedTasksJoin.exit().remove();
@@ -54,9 +53,16 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		}
 	});
 	bus.listen("data-ready", function() {
+		taskNames = taskTree.getTaskNames();
+
+		d3.select(".gantt-chart").selectAll(".y.axis .tick").on("click", function(d) {
+			selectedIndices = [ taskNames.indexOf(d) ];
+			bus.send("selection-update", [ getSelectedNames() ]);
+			updateSelection();
+		});
+
 		selectedIndices = [];
 		bus.send("selection-update", [ getSelectedNames() ]);
-		taskNames = taskTree.getTaskNames();
 		updateSelection();
 	});
 

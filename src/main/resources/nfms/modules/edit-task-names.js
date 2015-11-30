@@ -1,7 +1,14 @@
 define([ "message-bus", "task-tree" ], function(bus, taskTree) {
-	bus.listen("gantt-created", function(e, svg) {
-		svg.selectAll(".y.axis .tick").on("click", function(d) {
-			var tickSelection = d3.select(this);
+
+	var selectedTaskNames;
+
+	bus.listen("keypress", function(e, d3Event) {
+		if (d3Event.keyCode == 113 && selectedTaskNames.length > 0) {
+			var tickSelection = d3.select(".gantt-chart").selectAll(".y.axis .tick").filter(
+					function(d) {
+						return d == selectedTaskNames[0];
+					});
+			var cancel = false;
 			var input = tickSelection.append("foreignObject")//
 			.attr("width", "300px")//
 			.attr("height", "25px")//
@@ -12,16 +19,19 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 				// and is handily pointed at by 'this':
 				this.focus();
 
-				return d;
+				return selectedTaskNames[0];
 			}).attr("style", "width: 294px;")
 			// make the form go away when you jump out (form looses focus) or
 			// hit ENTER:
 			.on("blur", function() {
-				taskTree.getTask(d).taskName = input.node().value;
-				// Note to self: frm.remove() will remove the entire <g> group!
-				// Remember the D3 selection logic!
-				tickSelection.select(".editable").remove();
-				bus.send("refresh-tree");
+				if (!cancel) {
+					taskTree.getTask(selectedTaskNames[0]).taskName = input.node().value;
+					// Note to self: frm.remove() will remove the entire <g>
+					// group!
+					// Remember the D3 selection logic!
+					tickSelection.select(".editable").remove();
+					bus.send("refresh-tree");
+				}
 			}).on("keypress", function() {
 				// IE fix
 				if (!d3.event)
@@ -49,9 +59,16 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 					// // Anyway, it SHOULD be here and it doesn't hurt
 					// otherwise.
 					// p_el.select("foreignObject").remove();
+				} else if (e.keyCode == 27) {
+					cancel = true;
+					input.node().blur();
 				}
 			});
-		});
+		}
+	});
+
+	bus.listen("selection-update", function(e, newSelectedNames) {
+		selectedTaskNames = newSelectedNames;
 	});
 
 });

@@ -11,9 +11,10 @@ añadir tarea
 	implementar:
 		ENTER para crear un hermano abajo
 		SHIFT-ENTER para crear un hermano arriba
-		DEL para eliminar la tarea seleccionada
-		F2 para editar el nombre
-	Reemplazar el 34 del alto y dayHeight por rangeBand
+		* DEL para eliminar la tarea seleccionada
+		* F2 para editar el nombre
+
+Reemplazar el 34 del alto y dayHeight por rangeBand
 			
 eliminar tarea
 desplegar todos

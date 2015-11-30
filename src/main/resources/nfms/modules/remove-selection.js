@@ -1,6 +1,6 @@
 define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 
-	var selectedNames;
+	var selectedTaskNames;
 
 	bus.listen("keypress", function(e, d3Event) {
 		if (d3Event.keyCode == 46) {
@@ -9,7 +9,7 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 						taskTree.VISIT_ALL_CHILDREN, function(task) {
 							if (task.hasOwnProperty("tasks")) {
 								for (var i = 0; i < task.tasks.length; i++) {
-									if (task.tasks[i].taskName == selectedNames[0]) {
+									if (task.tasks[i].taskName == selectedTaskNames[0]) {
 										task.tasks.splice(i, 1);
 										throw "stop";
 									}
@@ -27,6 +27,6 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 	});
 
 	bus.listen("selection-update", function(e, newSelectedNames) {
-		selectedNames = newSelectedNames;
+		selectedTaskNames = newSelectedNames;
 	});
 });

@@ -1,8 +1,11 @@
 define([ "message-bus" ], function(bus) {
 
 	var nameIndicesMap = {};
-
+	var timeDomain = null;
 	var userFilter = null;
+	var xScale;
+	var yScale;
+	var taskNames;
 
 	var ROOT = {
 		"taskName" : "root",
@@ -11,6 +14,10 @@ define([ "message-bus" ], function(bus) {
 
 	var FILTER_ALL = function(task) {
 		return task != ROOT;
+	};
+
+	var FILTER_WITH_DATE = function(task) {
+		return !task.hasOwnProperty("tasks");
 	};
 
 	var VISIT_ALL_CHILDREN = function(task) {
@@ -44,6 +51,20 @@ define([ "message-bus" ], function(bus) {
 		return ret;
 	}
 
+	var getDates = function(task) {
+		var min = null;
+		var max = null;
+		var timeDomain = visitTasks(task, FILTER_WITH_DATE, VISIT_ALL_CHILDREN, function(task) {
+			if (min == null || min > task.getStartDate()) {
+				min = task.getStartDate();
+			}
+			if (max == null || max < task.getEndDate()) {
+				max = task.getEndDate();
+			}
+		});
+		return [ min, max ];
+	}
+
 	var getTask = function(taskName) {
 		var taskIndices = nameIndicesMap[taskName];
 		var ret = ROOT;
@@ -57,6 +78,11 @@ define([ "message-bus" ], function(bus) {
 		visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, function(task, index) {
 			nameIndicesMap[task.taskName] = index;
 		});
+		timeDomain = getDates(ROOT);
+		taskNames = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, NAME_EXTRACTOR);
+		xScale = d3.time.scale().domain(timeDomain).range([ 0, 800 ]).clamp(false);
+		yScale = d3.scale.ordinal().domain(taskNames).rangeRoundBands([ 0, taskNames.length * 20 ],
+				.1);
 		bus.send("data-ready");
 	});
 
@@ -95,6 +121,19 @@ define([ "message-bus" ], function(bus) {
 		"FILTER_ALL" : FILTER_ALL,
 		"VISIT_UNFOLDED_CHILDREN" : VISIT_UNFOLDED_CHILDREN,
 		"NAME_EXTRACTOR" : NAME_EXTRACTOR,
-		"visitTasks" : visitTasks
+		"visitTasks" : visitTasks,
+		"getDates" : getDates,
+		"getTimeDomain" : function() {
+			return timeDomain;
+		},
+		"getTaskNames" : function() {
+			return taskNames;
+		},
+		"getXScale" : function() {
+			return xScale;
+		},
+		"getYScale" : function() {
+			return yScale;
+		}
 	}
 });

@@ -4,6 +4,17 @@
 * guardar
 
 añadir tarea
+	* hacer que el div contenedor ocupe toda la pantalla
+	* hacer que se pueda scrollar el gantt mediante drags del ratón
+	* que las teclas cursor no muevan el scroll
+	* implementar una selección
+	implementar:
+		ENTER para crear un hermano abajo
+		SHIFT-ENTER para crear un hermano arriba
+		DEL para eliminar la tarea seleccionada
+		F2 para editar el nombre
+	Reemplazar el 34 del alto y dayHeight por rangeBand
+			
 eliminar tarea
 desplegar todos
 

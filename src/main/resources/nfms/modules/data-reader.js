@@ -45,6 +45,8 @@ define([ "text!../plan", "utils", "message-bus", "gantt" ], function(plan, utils
 		processTask(plan[i]);
 	}
 
-	bus.send("plan", [ plan ]);
+	bus.listen("modules-loaded", function() {
+		bus.send("plan", [ plan ]);
+	});
 
 });

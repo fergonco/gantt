@@ -8,25 +8,23 @@ añadir tarea
 	* hacer que se pueda scrollar el gantt mediante drags del ratón
 	* que las teclas cursor no muevan el scroll
 	* implementar una selección
-	implementar:
-		ENTER para crear un hermano abajo
-		SHIFT-ENTER para crear un hermano arriba
+	* implementar:
+		* ENTER para crear un hermano abajo
+		* SHIFT-ENTER para crear un hermano arriba
 		* DEL para eliminar la tarea seleccionada
 		* F2 para editar el nombre
-
-Reemplazar el 34 del alto y dayHeight por rangeBand
-			
-eliminar tarea
-desplegar todos
 
 mostrar árbol de subtareas
 añadir subtarea
 eliminar subtarea
 contador en subtarea: mostrar contador (exclusivo) actual, arrancar, parar
 
+Reemplazar el 34 del alto y dayHeight por rangeBand
+
 * filtrar por hoy
 * filtrar por status
 mover tarea arriba y abajo
+desplegar todos
 
 estimar subtareas y mostrar estimación en tarea
 mostrar tiempo consumido respecto al 100% estimación

@@ -49,4 +49,7 @@ define([ "text!../plan", "utils", "message-bus", "gantt" ], function(plan, utils
 		bus.send("plan", [ plan ]);
 	});
 
+	return {
+		"decorateTask" : processTask
+	}
 });

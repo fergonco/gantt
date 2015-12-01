@@ -181,16 +181,17 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		taskSelection.call(drag);
 
 		// Tasks date handlers
-		var taskDates = taskTree.visitTasks(taskTree.ROOT, taskTree.FILTER_ALL,
-				taskTree.VISIT_UNFOLDED_CHILDREN, function(task) {
-					return [ {
-						"taskName" : task.taskName,
-						"dateIndex" : 0
-					}, {
-						"taskName" : task.taskName,
-						"dateIndex" : 1
-					} ];
-				});
+		var taskDates = [];
+		for (var i = 0; i < taskNames.length; i++) {
+			taskDates.push({
+				"taskName" : taskNames[i],
+				"dateIndex" : 0
+			});
+			taskDates.push({
+				"taskName" : taskNames[i],
+				"dateIndex" : 1
+			});
+		}
 		var taskDatesSelection = svg.selectAll(".taskdates").data(taskDates);
 		taskDatesSelection.exit().remove();
 		taskDatesSelection.enter().append("rect");

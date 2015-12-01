@@ -1,17 +1,18 @@
 define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTree, dataReader) {
 
-	var selectedTaskNames;
+	var selectedTaskName;
 
 	bus.listen("keypress", function(e, d3Event) {
 		if (d3Event.keyCode == 13) {
 			try {
+				var newTaskName = "new task";
 				taskTree.visitTasks(taskTree.ROOT, taskTree.FILTER_ALL,
 						taskTree.VISIT_ALL_CHILDREN, function(task) {
 							if (task.hasOwnProperty("tasks")) {
 								for (var i = 0; i < task.tasks.length; i++) {
-									if (task.tasks[i].taskName == selectedTaskNames[0]) {
+									if (task.tasks[i].taskName == selectedTaskName) {
 										var newTask = {
-											taskName : "new task",
+											taskName : newTaskName,
 											status : task.tasks[i].status
 										};
 										dataReader.decorateTask(newTask);
@@ -28,6 +29,8 @@ define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTr
 			} catch (e) {
 				if (e == "stop") {
 					bus.send("refresh-tree");
+					bus.send("select-task", [ newTaskName ]);
+					bus.send("edit-selected");
 				} else {
 					throw e;
 				}
@@ -35,7 +38,7 @@ define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTr
 		}
 	});
 
-	bus.listen("selection-update", function(e, newSelectedNames) {
-		selectedTaskNames = newSelectedNames;
+	bus.listen("selection-update", function(e, newSelectedName) {
+		selectedTaskName = newSelectedName;
 	});
 });

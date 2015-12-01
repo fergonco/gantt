@@ -3,7 +3,7 @@
 * renombrar
 * guardar
 
-añadir tarea
+* añadir tarea
 	* hacer que el div contenedor ocupe toda la pantalla
 	* hacer que se pueda scrollar el gantt mediante drags del ratón
 	* que las teclas cursor no muevan el scroll
@@ -19,7 +19,7 @@ añadir subtarea
 eliminar subtarea
 contador en subtarea: mostrar contador (exclusivo) actual, arrancar, parar
 
-Reemplazar el 34 del alto y dayHeight por rangeBand
+Mostrar lo trabajado según el filtro y acumulado hacia arriba.
 
 * filtrar por hoy
 * filtrar por status

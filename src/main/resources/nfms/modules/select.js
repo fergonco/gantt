@@ -1,26 +1,28 @@
 define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 
 	var taskNames;
-	var selectedIndices;
+	var selectedTask;
 
-	var getSelectedNames = function() {
-		var selectedNames = [];
-		if (selectedIndices.length > 0) {
-			selectedNames.push(taskNames[selectedIndices[0]]);
+	var getSelectedIndex = function() {
+		if (selectedTask != null) {
+			for (var i = 0; i < taskNames.length; i++) {
+				if (taskNames[i] == selectedTask) {
+					return i;
+				}
+			}
 		}
 
-		return selectedNames;
+		return null;
 	}
 
 	var updateSelection = function() {
-		var selectedNames = getSelectedNames();
 		var selectedTasksJoin = d3.select(".gantt-chart").selectAll(".taskSelection").data(
-				selectedNames);
+				selectedTask != null ? [ selectedTask ] : []);
 		selectedTasksJoin.exit().remove();
 		selectedTasksJoin.enter().append("rect", ":first-child");
 		var x1 = taskTree.getXScale()(taskTree.getTimeDomain()[0]);
 		var x2 = taskTree.getXScale()(taskTree.getTimeDomain()[1]);
-		var y1 = taskTree.getYScale()(selectedNames[0]);
+		var y1 = taskTree.getYScale()(selectedTask);
 		selectedTasksJoin.attr("class", "taskSelection")//
 		.attr("y", 0)//
 		.attr("transform", function(d) {
@@ -33,36 +35,53 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 
 	bus.listen("keypress", function(e, d3Event) {
 		if (d3Event.keyCode == 40 || d3Event.keyCode == 38) {
+			var selectedIndex = getSelectedIndex();
 			if (d3Event.keyCode == 40) {
 				d3Event.preventDefault();
-				if (selectedIndices.length == 0) {
-					selectedIndices = [ 0 ];
+				if (selectedIndex == null) {
+					selectedIndex = 0;
 				} else {
-					selectedIndices[0] = selectedIndices[0] + 1;
+					selectedIndex++;
+					if (selectedIndex > taskNames.length - 1) {
+						selectedIndex = 0;
+					}
 				}
 			} else if (d3Event.keyCode == 38) {
 				d3Event.preventDefault();
-				if (selectedIndices.length == 0) {
-					selectedIndices = [ taskNames.length - 1 ];
+				if (selectedIndex == null) {
+					selectedIndex = taskNames.length - 1;
 				} else {
-					selectedIndices[0] = selectedIndices[0] - 1;
+					selectedIndex--;
+					if (selectedIndex < 0) {
+						selectedIndex = taskNames.length - 1
+					}
 				}
 			}
-			bus.send("selection-update", [ getSelectedNames() ]);
+			selectedTask = taskNames[selectedIndex];
+			bus.send("selection-update", [ selectedTask ]);
 			updateSelection();
 		}
 	});
+
+	bus.listen("select-task", function(e, taskName) {
+		selectedTask = taskName;
+		bus.send("selection-update", [ selectedTask ]);
+		updateSelection();
+	});
+
 	bus.listen("data-ready", function() {
 		taskNames = taskTree.getTaskNames();
 
 		d3.select(".gantt-chart").selectAll(".y.axis .tick").on("click", function(d) {
-			selectedIndices = [ taskNames.indexOf(d) ];
-			bus.send("selection-update", [ getSelectedNames() ]);
+			selectedTask = d;
+			bus.send("selection-update", [ selectedTask ]);
 			updateSelection();
 		});
 
-		selectedIndices = [];
-		bus.send("selection-update", [ getSelectedNames() ]);
+		if (getSelectedIndex() == null) {
+			selectedTask = null;
+		}
+		bus.send("selection-update", [ null ]);
 		updateSelection();
 	});
 

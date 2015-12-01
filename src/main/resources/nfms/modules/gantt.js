@@ -55,6 +55,9 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	});
 	var updateTask = function(selection) {
 		selection//
+		.attr("title", function(d) {
+			return d;
+		})//
 		.attr("rx", 5)//
 		.attr("ry", 5)//
 		.attr("class", function(d) {

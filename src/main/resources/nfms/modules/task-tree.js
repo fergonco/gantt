@@ -3,6 +3,7 @@ define([ "message-bus" ], function(bus) {
 	var nameIndicesMap = {};
 	var timeDomain = null;
 	var userFilter = null;
+	var userChildrenFilter = null;
 	var xScale;
 	var yScale;
 	var taskNames;
@@ -75,11 +76,13 @@ define([ "message-bus" ], function(bus) {
 	};
 
 	bus.listen("refresh-tree", function(e) {
-		visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, function(task, index) {
+		timeDomain = getDates(ROOT);
+		var childrenFilter = userChildrenFilter != null ? VISIT_ALL_CHILDREN
+				: VISIT_UNFOLDED_CHILDREN;
+		visitTasks(ROOT, FILTER_ALL, childrenFilter, function(task, index) {
 			nameIndicesMap[task.taskName] = index;
 		});
-		timeDomain = getDates(ROOT);
-		taskNames = visitTasks(ROOT, FILTER_ALL, VISIT_UNFOLDED_CHILDREN, NAME_EXTRACTOR);
+		taskNames = visitTasks(ROOT, FILTER_ALL, childrenFilter, NAME_EXTRACTOR);
 		xScale = d3.time.scale().domain(timeDomain).range([ 0, 800 ]).clamp(false);
 		yScale = d3.scale.ordinal().domain(taskNames).rangeRoundBands([ 0, taskNames.length * 20 ],
 				.1);
@@ -93,6 +96,11 @@ define([ "message-bus" ], function(bus) {
 
 	bus.listen("filter", function(e, newFilter) {
 		userFilter = newFilter;
+		if (userFilter != null) {
+			userChildrenFilter = VISIT_ALL_CHILDREN;
+		} else {
+			userChildrenFilter = null;
+		}
 		bus.send("refresh-tree");
 	});
 

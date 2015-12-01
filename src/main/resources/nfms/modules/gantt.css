@@ -43,10 +43,9 @@
 }
 
 .taskSelection {
-	stroke: #ffff00;
+	stroke: #000000;
 	stroke-width: 1px;
-	fill: #ffff00;
-	opacity: .25;
+	fill: none;
 }
 
 .taskdates {

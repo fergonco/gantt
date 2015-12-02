@@ -89,7 +89,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			bus.send("select-task", [ d ]);
 			if (task.hasOwnProperty("tasks")) {
 				bus.send("toggle-folded-selected");
-			} else {
+			} else if (d3.event.ctrlKey) {
 				var statusList = taskTree.getStatusList();
 				var taskStatus = task.getStatus();
 				for (var i = 0; i < statusList.length; i++) {

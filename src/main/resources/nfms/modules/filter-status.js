@@ -13,16 +13,12 @@ define([ "message-bus", "task-tree", "message-bus", "d3" ], function(bus, taskTr
 	});
 
 	bus.listen("data-ready", function() {
-		taskTree.visitTasks(taskTree.ROOT, taskTree.FILTER_ALL, taskTree.VISIT_ALL_CHILDREN,
-				function(task) {
-					var taskStatus = task.getStatus();
-					if (status.indexOf(taskStatus) == -1) {
-						status.push(taskStatus);
-						input.append("option")//
-						.attr("value", taskStatus)//
-						.html(taskStatus);
-					}
-				});
+		var statusList = taskTree.getStatusList();
+		for (var i = 0; i < statusList.length; i++) {
+			input.append("option")//
+			.attr("value", statusList[i])//
+			.html(statusList[i]);
+		}
 
 	});
 

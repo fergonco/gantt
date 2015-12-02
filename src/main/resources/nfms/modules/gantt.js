@@ -8,6 +8,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	var taskNames;
 	var xScale;
 	var yScale;
+	var statusList;
 
 	var getWeekends = function(timeDomain) {
 		var ret = [];
@@ -82,6 +83,8 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			var dates = taskTree.getDates(taskTree.getTask(d));
 			return (xScale(dates[1]) - xScale(dates[0]));
 		}).on("click", function(d) {
+			if (d3.event.defaultPrevented)
+				return; // click suppressed
 			var task = taskTree.getTask(d);
 			if (task.hasOwnProperty("tasks")) {
 				var folded;
@@ -93,6 +96,16 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				folded = !folded;
 				task["folded"] = folded;
 				bus.send("refresh-tree");
+			} else {
+				var statusList = taskTree.getStatusList();
+				var taskStatus = task.getStatus();
+				for (var i = 0; i < statusList.length; i++) {
+					if (taskStatus == statusList[i]) {
+						task.status = statusList[(i + 1) % statusList.length];
+						updateTask(d3.select(this));
+						break;
+					}
+				}
 			}
 		});
 

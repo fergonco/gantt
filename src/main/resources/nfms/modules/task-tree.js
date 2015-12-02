@@ -7,6 +7,7 @@ define([ "message-bus" ], function(bus) {
 	var xScale;
 	var yScale;
 	var taskNames;
+	var statusList;
 
 	var ROOT = {
 		"taskName" : "root",
@@ -86,6 +87,14 @@ define([ "message-bus" ], function(bus) {
 		xScale = d3.time.scale().domain(timeDomain).range([ 0, 800 ]).clamp(false);
 		yScale = d3.scale.ordinal().domain(taskNames).rangeRoundBands([ 0, taskNames.length * 20 ],
 				.1);
+		statusList = [];
+		visitTasks(ROOT, FILTER_ALL, VISIT_ALL_CHILDREN, function(task) {
+			var taskStatus = task.getStatus();
+			if (statusList.indexOf(taskStatus) == -1) {
+				statusList.push(taskStatus);
+			}
+		});
+		statusList.sort();
 		bus.send("data-ready");
 	});
 
@@ -142,6 +151,9 @@ define([ "message-bus" ], function(bus) {
 		},
 		"getYScale" : function() {
 			return yScale;
+		},
+		"getStatusList" : function(){
+			return statusList;
 		}
 	}
 });

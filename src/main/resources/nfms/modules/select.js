@@ -69,7 +69,7 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		updateSelection();
 	});
 
-	bus.listen("data-ready", function() {
+	bus.listen("gantt-created", function() {
 		taskNames = taskTree.getTaskNames();
 
 		d3.select(".gantt-chart").selectAll(".y.axis .tick").on("click", function(d) {

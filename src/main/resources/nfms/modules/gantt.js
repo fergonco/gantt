@@ -51,7 +51,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	});
 	d3.select("body").select(".chart").call(drag);
 
-	d3.select("body").on("keypress", function() {
+	d3.select("body").on("keydown", function() {
 		bus.send("keypress", [ d3.event ]);
 	});
 	var updateTask = function(selection) {
@@ -87,15 +87,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				return; // click suppressed
 			var task = taskTree.getTask(d);
 			if (task.hasOwnProperty("tasks")) {
-				var folded;
-				if (task.hasOwnProperty("folded")) {
-					folded = task.folded;
-				} else {
-					folded = false;
-				}
-				folded = !folded;
-				task["folded"] = folded;
-				bus.send("refresh-tree");
+				bus.send("toggle-folded-selected");
 			} else {
 				var statusList = taskTree.getStatusList();
 				var taskStatus = task.getStatus();
@@ -189,7 +181,9 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				return d2.taskName == d;
 			}));
 		}).on("dragend", function(d) {
-			bus.send("refresh-tree");
+			if (dx > 0) {
+				bus.send("refresh-tree");
+			}
 		});
 		taskSelection.call(drag);
 

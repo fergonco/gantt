@@ -7,9 +7,11 @@ define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTr
 			var newTaskName = "new task";
 			var parentTask = taskTree.getTask(selectedTaskName);
 			var newTask = {
-				taskName : newTaskName,
-				status : parentTask.status
+				taskName : newTaskName
 			};
+			if (parentTask.hasOwnProperty("status")) {
+				newTask["status"] = parentTask.status;
+			}
 			if (parentTask.getStartDate() != null) {
 				newTask.startDate = parentTask.getStartDate();
 			}

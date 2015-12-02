@@ -12,9 +12,11 @@ define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTr
 								for (var i = 0; i < task.tasks.length; i++) {
 									if (task.tasks[i].taskName == selectedTaskName) {
 										var newTask = {
-											taskName : newTaskName,
-											status : task.tasks[i].status
+											taskName : newTaskName
 										};
+										if (task.tasks[i].hasOwnProperty("status")) {
+											newTask["status"] = task.tasks[i].status;
+										}
 										dataReader.decorateTask(newTask);
 										var index = i + 1;
 										if (d3Event.shiftKey) {

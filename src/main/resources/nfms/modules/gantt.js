@@ -86,6 +86,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			if (d3.event.defaultPrevented)
 				return; // click suppressed
 			var task = taskTree.getTask(d);
+			bus.send("select-task", [ d ]);
 			if (task.hasOwnProperty("tasks")) {
 				bus.send("toggle-folded-selected");
 			} else {

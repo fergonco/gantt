@@ -81,7 +81,7 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		if (getSelectedIndex() == null) {
 			selectedTask = null;
 		}
-		bus.send("selection-update", [ null ]);
+		bus.send("selection-update", [ selectedTask ]);
 		updateSelection();
 	});
 

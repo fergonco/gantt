@@ -51,7 +51,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	});
 	d3.select("body").select(".chart").call(drag);
 
-	d3.select("body").on("keydown", function() {
+	d3.select("body").on("keyup", function() {
 		bus.send("keypress", [ d3.event ]);
 	});
 	var updateTask = function(selection) {

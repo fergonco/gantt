@@ -4,9 +4,6 @@ define([ "message-bus", "utils", "d3" ], function(bus, utils) {
 	weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
 	var weekEnd = new Date(weekStart.getTime() + utils.DAY_MILLIS * 6);
 
-	console.log(weekStart);
-	console.log(weekEnd);
-
 	var FILTER_WEEK = function(task) {
 		return (task.getEndDate() >= weekStart && task.getEndDate() <= weekEnd)
 				|| (task.getStartDate() >= weekStart && task.getStartDate() <= weekEnd)

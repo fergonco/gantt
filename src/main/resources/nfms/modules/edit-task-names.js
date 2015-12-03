@@ -37,6 +37,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 			// group!
 			// Remember the D3 selection logic!
 			tickSelection.select(".editable").remove();
+			bus.send("enable-keylistener");
 			if (!cancel) {
 				bus.send("refresh-tree");
 				bus.send("select-task", [ task.taskName ]);
@@ -48,12 +49,12 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 
 			var e = d3.event;
 			if (e.keyCode == 13) {
-				input.node().blur();
 				if (typeof (e.cancelBubble) !== 'undefined') // IE
 					e.cancelBubble = true;
 				if (e.stopPropagation)
 					e.stopPropagation();
 				e.preventDefault();
+				input.node().blur();
 				//
 				// var txt = inp.node().value;
 				//
@@ -73,6 +74,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 				input.node().blur();
 			}
 		});
+		bus.send("disable-keylistener");
 	});
 
 	bus.listen("selection-update", function(e, newSelectedName) {

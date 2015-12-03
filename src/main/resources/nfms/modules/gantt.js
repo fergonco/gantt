@@ -182,7 +182,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				return d2.taskName == d;
 			}));
 		}).on("dragend", function(d) {
-			if (dx > 0) {
+			if (dx != 0) {
 				bus.send("refresh-tree");
 			}
 		});

@@ -246,15 +246,14 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		svg.selectAll(".axis").remove();
 
 		var yAxis = d3.svg.axis().scale(yScale).orient("left").tickSize(1);
-		svg.append("g").attr("class", "y axis").transition().call(yAxis);
+		svg.append("g").attr("class", "y axis").call(yAxis);
 		var xAxis1 = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(
 				d3.time.format("%d/%m")).tickSize(1).tickPadding(8);
 		svg.append("g").attr("class", "x axis").attr("transform",
-				"translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(
-				xAxis1);
+				"translate(0, " + (height - margin.top - margin.bottom) + ")").call(xAxis1);
 		var xAxis2 = d3.svg.axis().scale(xScale).orient("top").tickFormat(d3.time.format("%d/%m"))
 				.tickSize(1).tickPadding(8);
-		svg.append("g").attr("class", "x axis").transition().call(xAxis2);
+		svg.append("g").attr("class", "x axis").call(xAxis2);
 
 		var zoom = d3.behavior.zoom();
 		svg.call(zoom);

@@ -22,6 +22,9 @@ public class Plan extends HttpServlet {
 	private File planFile = new File(System.getProperty("user.home")
 			+ "/.olakease/", "plan.json");
 
+	// private File planFile = new
+	// File("/home/fergonco/b/java/olakease/olakease-app/plan.json");
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {

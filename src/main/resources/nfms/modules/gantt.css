@@ -61,12 +61,12 @@
 }
 
 html, body {
-	height: 98%;
+	height: 95%;
 }
 
 .allscreen {
 	width: 100%;
-	height: 98%;
+	height: 95%;
 	overflow: scroll;
 	
 }

@@ -18,7 +18,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		.attr("width", "600px")//
 		.attr("height", "25px")//
 		.attr("class", "editable")//
-		.append("xhtml:form").append("input").attr("value", function() {
+		.append("xhtml:input").attr("value", function() {
 			// nasty spot to place this call, but here we are sure that the
 			// <input> tag is available
 			// and is handily pointed at by 'this':
@@ -42,7 +42,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 				bus.send("refresh-tree");
 				bus.send("select-task", [ task.taskName ]);
 			}
-		}).on("keypress", function() {
+		}).on("keyup", function() {
 			// IE fix
 			if (!d3.event)
 				d3.event = window.event;

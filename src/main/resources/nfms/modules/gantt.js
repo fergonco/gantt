@@ -59,13 +59,15 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		.attr("ry", 5)//
 		.attr("class", function(d) {
 			var task = taskTree.getTask(d);
-			var status = task.getStatus();
-			if (status == "gruppe") {
+			var barClass = task.getStatus();
+			if (task.isAtemporal()) {
+				barClass = "atemporal";
+			} else if (barClass == "gruppe") {
 				if (task.hasOwnProperty("folded") && task.folded == true) {
-					status = "gruppe-closed";
+					barClass = "gruppe-closed";
 				}
 			}
-			return "tasks bar-" + status;
+			return "tasks bar-" + barClass;
 		}) //
 		.attr("y", 0)//
 		.attr("transform", function(d) {

@@ -1,4 +1,4 @@
-define([ "message-bus" ], function(bus) {
+define([ "message-bus", "utils" ], function(bus, utils) {
 
 	var nameIndicesMap = {};
 	var timeDomain = null;
@@ -11,7 +11,13 @@ define([ "message-bus" ], function(bus) {
 
 	var ROOT = {
 		"taskName" : "root",
-		"tasks" : null
+		"tasks" : null,
+		"getParent" : function() {
+			return null;
+		},
+		"isAtemporal" : function() {
+			return false;
+		}
 	}
 
 	var FILTER_ALL = function(task) {
@@ -35,18 +41,18 @@ define([ "message-bus" ], function(bus) {
 	};
 
 	var visitTasks = function(task, filter, visitChildren, extractor) {
-		return visitTasksWithIndex(task, [], filter, visitChildren, extractor);
+		return visitTasksWithIndex(null, task, [], filter, visitChildren, extractor);
 	}
 
-	var visitTasksWithIndex = function(task, index, filter, visitChildren, extractor) {
+	var visitTasksWithIndex = function(parent, task, index, filter, visitChildren, extractor) {
 		var ret = [];
 		if (filter(task) && (userFilter == null || userFilter(task))) {
-			ret = ret.concat(extractor(task, index));
+			ret = ret.concat(extractor(task, index, parent));
 		}
 		if (task.hasOwnProperty("tasks") && visitChildren(task)) {
 			for (var i = 0; i < task.tasks.length; i++) {
-				ret = ret.concat(visitTasksWithIndex(task.tasks[i], index.concat([ i ]), filter,
-						visitChildren, extractor));
+				ret = ret.concat(visitTasksWithIndex(task, task.tasks[i], index.concat([ i ]),
+						filter, visitChildren, extractor));
 			}
 		}
 
@@ -76,7 +82,60 @@ define([ "message-bus" ], function(bus) {
 		return ret;
 	};
 
+	var decorateTask = function(parent, task) {
+		task["getParent"] = function() {
+			return parent;
+		}
+		task["isAtemporal"] = function() {
+			if (task.getParent() == null) {
+				return false;
+			} else {
+				return task.getParent()["atemporal-children"] || task.getParent().isAtemporal();
+			}
+		}
+		task["getStatus"] = function() {
+			if (task.hasOwnProperty("tasks") && !task["atemporal-children"]) {
+				return "gruppe";
+			} else if (task.hasOwnProperty("status")) {
+				return task.status;
+			} else {
+				return "short";
+			}
+		}
+		task["getStartDate"] = function() {
+			if (task.isAtemporal()) {
+				var parentDate = task.getParent().getStartDate();
+				return new Date(parentDate.getTime() + utils.DAY_MILLIS);
+			} else if (!task.hasOwnProperty("tasks") || task["atemporal-children"]) {
+				if (task.hasOwnProperty("startDate")) {
+					return new Date(task["startDate"]);
+				} else {
+					return utils.today;
+				}
+			} else {
+				return null;
+			}
+		};
+		task["getEndDate"] = function() {
+			if (task.isAtemporal()) {
+				var parentDate = task.getParent().getEndDate();
+				return new Date(parentDate.getTime() + 2 * utils.DAY_MILLIS);
+			} else if (!task.hasOwnProperty("tasks") || task["atemporal-children"]) {
+				if (task.hasOwnProperty("endDate")) {
+					return new Date(task["endDate"]);
+				} else {
+					return new Date(utils.today.getTime() + utils.DAY_MILLIS);
+				}
+			} else {
+				return null;
+			}
+		};
+	}
+
 	bus.listen("refresh-tree", function(e) {
+		visitTasks(ROOT, FILTER_ALL, VISIT_ALL_CHILDREN, function(task, index, parent) {
+			decorateTask(parent, task);
+		});
 		timeDomain = getDates(ROOT);
 		var childrenFilter = userChildrenFilter != null ? VISIT_ALL_CHILDREN
 				: VISIT_UNFOLDED_CHILDREN;
@@ -132,6 +191,7 @@ define([ "message-bus" ], function(bus) {
 	});
 
 	return {
+		"decorateTask" : decorateTask,
 		"getTask" : getTask,
 		"ROOT" : ROOT,
 		"VISIT_ALL_CHILDREN" : VISIT_ALL_CHILDREN,
@@ -152,7 +212,7 @@ define([ "message-bus" ], function(bus) {
 		"getYScale" : function() {
 			return yScale;
 		},
-		"getStatusList" : function(){
+		"getStatusList" : function() {
 			return statusList;
 		}
 	}

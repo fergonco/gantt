@@ -1,4 +1,4 @@
-define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTree, dataReader) {
+define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 
 	var selectedTaskName;
 
@@ -18,10 +18,13 @@ define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTr
 			if (parentTask.getEndDate() != null) {
 				newTask.endDate = parentTask.getEndDate();
 			}
+			if (d3Event.shiftKey && !parentTask.hasOwnProperty("tasks")) {
+				parentTask["atemporal-children"] = true;
+			}
 			if (!parentTask.hasOwnProperty("tasks")) {
 				parentTask["tasks"] = [];
 			}
-			dataReader.decorateTask(newTask);
+			taskTree.decorateTask(parentTask, newTask);
 			parentTask.tasks.splice(0, 0, newTask);
 			bus.send("refresh-tree");
 			bus.send("select-task", [ newTaskName ]);

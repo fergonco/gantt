@@ -1,4 +1,4 @@
-define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTree, dataReader) {
+define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 
 	var selectedTaskName;
 
@@ -17,7 +17,7 @@ define([ "message-bus", "task-tree", "data-reader", "d3" ], function(bus, taskTr
 										if (task.tasks[i].hasOwnProperty("status")) {
 											newTask["status"] = task.tasks[i].status;
 										}
-										dataReader.decorateTask(newTask);
+										taskTree.decorateTask(task, newTask);
 										var index = i + 1;
 										if (d3Event.shiftKey) {
 											index = i;

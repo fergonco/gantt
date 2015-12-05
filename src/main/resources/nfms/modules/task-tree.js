@@ -11,13 +11,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 
 	var ROOT = {
 		"taskName" : "root",
-		"tasks" : null,
-		"getParent" : function() {
-			return null;
-		},
-		"isAtemporal" : function() {
-			return false;
-		}
+		"tasks" : null
 	}
 
 	var FILTER_ALL = function(task) {
@@ -25,11 +19,15 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 	};
 
 	var FILTER_WITH_DATE = function(task) {
-		return !task.hasOwnProperty("tasks");
+		return !task.isGroup();
 	};
 
 	var VISIT_ALL_CHILDREN = function(task) {
 		return true;
+	};
+
+	var VISIT_ALL_GROUPS = function(task) {
+		return task.isGroup();
 	};
 
 	var VISIT_UNFOLDED_CHILDREN = function(task) {
@@ -62,7 +60,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 	var getDates = function(task) {
 		var min = null;
 		var max = null;
-		var timeDomain = visitTasks(task, FILTER_WITH_DATE, VISIT_ALL_CHILDREN, function(task) {
+		var timeDomain = visitTasks(task, FILTER_WITH_DATE, VISIT_ALL_GROUPS, function(task) {
 			if (min == null || min > task.getStartDate()) {
 				min = task.getStartDate();
 			}
@@ -93,8 +91,17 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 				return task.getParent()["atemporal-children"] || task.getParent().isAtemporal();
 			}
 		}
+		task["isGroup"] = function() {
+			return task.hasChildren() && !task["atemporal-children"];
+		}
+		task["hasChildren"] = function() {
+			return task.hasOwnProperty("tasks");
+		}
+		task["isFolded"] = function() {
+			return task.hasOwnProperty("folded") && task.folded == true;
+		}
 		task["getStatus"] = function() {
-			if (task.hasOwnProperty("tasks") && !task["atemporal-children"]) {
+			if (task.isGroup()) {
 				return "gruppe";
 			} else if (task.hasOwnProperty("status")) {
 				return task.status;
@@ -106,7 +113,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			if (task.isAtemporal()) {
 				var parentDate = task.getParent().getStartDate();
 				return new Date(parentDate.getTime() + utils.DAY_MILLIS);
-			} else if (!task.hasOwnProperty("tasks") || task["atemporal-children"]) {
+			} else if (!task.isGroup()) {
 				if (task.hasOwnProperty("startDate")) {
 					return new Date(task["startDate"]);
 				} else {
@@ -130,9 +137,67 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 				return null;
 			}
 		};
+		task["createSibling"] = function(newTaskName, before) {
+			var newTask = {
+				taskName : newTaskName
+			};
+			var index = -1;
+			var parentTask = task.getParent();
+			for (var i = 0; i < parentTask.tasks.length; i++) {
+				if (parentTask.tasks[i].taskName == task.taskName) {
+					index = i;
+					break;
+				}
+			}
+			if (parentTask.tasks[index].hasOwnProperty("status")) {
+				newTask["status"] = parentTask.tasks[index].status;
+			}
+			decorateTask(parentTask, newTask);
+			var index = index + 1;
+			if (before) {
+				index = index;
+			}
+			parentTask.tasks.splice(index, 0, newTask);
+		}
+		task["createChild"] = function(newTaskName, atemporal) {
+			var newTask = {
+				taskName : newTaskName
+			};
+			if (task.hasOwnProperty("status")) {
+				newTask["status"] = task.status;
+			}
+			atemporal = atemporal && !task.isGroup();
+			if (!atemporal) {
+				if (task.getStartDate() != null) {
+					newTask.startDate = task.getStartDate();
+				}
+				if (task.getEndDate() != null) {
+					newTask.endDate = task.getEndDate();
+				}
+			}
+			if (atemporal) {
+				task["atemporal-children"] = true;
+			}
+			if (!task.hasOwnProperty("tasks")) {
+				task["tasks"] = [];
+			}
+			decorateTask(task, newTask);
+			task.tasks.splice(0, 0, newTask);
+			console.log(task);
+		}
+		task["removeChild"] = function(child) {
+			if (task.hasChildren()) {
+				for (var i = 0; i < task.tasks.length; i++) {
+					if (task.tasks[i] == child) {
+						task.tasks.splice(i, 1);
+					}
+				}
+			}
+		}
 	}
 
 	bus.listen("refresh-tree", function(e) {
+		decorateTask(null, ROOT);
 		visitTasks(ROOT, FILTER_ALL, VISIT_ALL_CHILDREN, function(task, index, parent) {
 			decorateTask(parent, task);
 		});
@@ -191,7 +256,6 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 	});
 
 	return {
-		"decorateTask" : decorateTask,
 		"getTask" : getTask,
 		"ROOT" : ROOT,
 		"VISIT_ALL_CHILDREN" : VISIT_ALL_CHILDREN,

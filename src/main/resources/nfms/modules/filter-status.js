@@ -4,7 +4,7 @@ define([ "message-bus", "task-tree", "message-bus", "d3" ], function(bus, taskTr
 	var status = [];
 
 	var FILTER_STATUS = function(task) {
-		return task.getStatus() == currentStatus || task.hasOwnProperty("tasks");
+		return task.getStatus() == currentStatus || task.isGroup();
 	};
 
 	var input = d3.select("body").append("select").on("change", function() {

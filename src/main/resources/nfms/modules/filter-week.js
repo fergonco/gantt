@@ -7,7 +7,7 @@ define(
 			var weekEnd = new Date(weekStart.getTime() + utils.DAY_MILLIS * 6);
 
 			var FILTER_WEEK = function(task) {
-				return task.hasOwnProperty("tasks")
+				return task.isGroup()
 						|| ((task.getEndDate() >= weekStart && task.getEndDate() <= weekEnd)
 								|| (task.getStartDate() >= weekStart && task.getStartDate() <= weekEnd) || (task
 								.getStartDate() < weekStart && task.getEndDate() > weekEnd));

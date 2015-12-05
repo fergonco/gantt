@@ -59,13 +59,15 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		.attr("ry", 5)//
 		.attr("class", function(d) {
 			var task = taskTree.getTask(d);
-			var barClass = task.getStatus();
+			var barClass;
 			if (task.isAtemporal()) {
 				barClass = "atemporal";
-			} else if (barClass == "gruppe") {
-				if (task.hasOwnProperty("folded") && task.folded == true) {
+			} else if (task.isGroup()) {
+				if (task.isFolded()) {
 					barClass = "gruppe-closed";
 				}
+			} else {
+				barClass = task.getStatus();
 			}
 			return "tasks bar-" + barClass;
 		}) //
@@ -85,9 +87,10 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				return; // click suppressed
 			var task = taskTree.getTask(d);
 			bus.send("select-task", [ d ]);
-			if (task.hasOwnProperty("tasks")) {
+			if (task.hasChildren()) {
 				bus.send("toggle-folded-selected");
-			} else if (d3.event.ctrlKey) {
+			}
+			if (d3.event.ctrlKey && (!task.isGroup() || !task.isAtemporal())) {
 				var statusList = taskTree.getStatusList();
 				var taskStatus = task.getStatus();
 				for (var i = 0; i < statusList.length; i++) {

@@ -31,6 +31,12 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		})//
 		.attr("width", x2 - x1)//
 		.attr("height", taskTree.getYScale().rangeBand());
+		if (selectedTask != null) {
+			console.log(taskTree.getTask(selectedTask));
+			console.log(taskTree.getTask(selectedTask).getStartDate());
+			console.log(taskTree.getTask(selectedTask).getEndDate());
+			console.log(taskTree.getDates(taskTree.getTask(selectedTask)));
+		}
 	};
 
 	bus.listen("keypress", function(e, d3Event) {

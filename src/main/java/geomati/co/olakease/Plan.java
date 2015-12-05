@@ -19,11 +19,11 @@ import org.apache.commons.io.IOUtils;
 public class Plan extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private File planFile = new File(System.getProperty("user.home")
-			+ "/.olakease/", "plan.json");
+	// private File planFile = new File(System.getProperty("user.home")
+	// + "/.olakease/", "plan.json");
 
-	// private File planFile = new
-	// File("/home/fergonco/b/java/olakease/olakease-app/plan.json");
+	private File planFile = new File(
+			"/home/fergonco/b/java/olakease/olakease-app/plan.json");
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)

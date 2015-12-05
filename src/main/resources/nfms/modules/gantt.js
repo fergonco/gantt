@@ -55,8 +55,6 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		.attr("title", function(d) {
 			return d;
 		})//
-		.attr("rx", 5)//
-		.attr("ry", 5)//
 		.attr("class", function(d) {
 			var task = taskTree.getTask(d);
 			var barClass;
@@ -77,7 +75,11 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			return "translate(" + xScale(dates[0]) + "," + yScale(d) + ")";
 		})//
 		.attr("height", function(d) {
-			return yScale.rangeBand();
+			if (taskTree.getTask(d).isAtemporal()) {
+				return 5;
+			} else {
+				return yScale.rangeBand();
+			}
 		})//
 		.attr("width", function(d) {
 			var dates = taskTree.getDates(taskTree.getTask(d));
@@ -108,15 +110,13 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	var updateTaskHandlers = function(selection) {
 		var handleWidth = 5;
 		selection//
-		.attr("rx", 5)//
-		.attr("ry", 5)//
 		.attr("class", "taskdates") //
 		.attr("y", 0)//
 		.attr("transform", function(d) {
 			var task = taskTree.getTask(d.taskName);
 			var dates = taskTree.getDates(task);
 			var x = xScale(dates[d.dateIndex]);
-			if (d.dateIndex == 1) {
+			if (d.dateIndex == 0) {
 				x -= handleWidth;
 			}
 			return "translate(" + x + "," + yScale(d.taskName) + ")";
@@ -192,14 +192,16 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		// Tasks date handlers
 		var taskDates = [];
 		for (var i = 0; i < taskNames.length; i++) {
-			taskDates.push({
-				"taskName" : taskNames[i],
-				"dateIndex" : 0
-			});
-			taskDates.push({
-				"taskName" : taskNames[i],
-				"dateIndex" : 1
-			});
+			if (!taskTree.getTask(taskNames[i]).isAtemporal()) {
+				taskDates.push({
+					"taskName" : taskNames[i],
+					"dateIndex" : 0
+				});
+				taskDates.push({
+					"taskName" : taskNames[i],
+					"dateIndex" : 1
+				});
+			}
 		}
 		var taskDatesSelection = svg.selectAll(".taskdates").data(taskDates);
 		taskDatesSelection.exit().remove();

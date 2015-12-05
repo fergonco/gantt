@@ -6,6 +6,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 
 	var timeDomain;
 	var taskNames;
+	var atemporalTaskNames;
 	var xScale;
 	var yScale;
 	var statusList;
@@ -50,6 +51,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		node.scrollTop = node.scrollTop - d3.event.dy;
 	});
 	d3.select("body").select(".chart").call(drag);
+
 	var updateTask = function(selection) {
 		selection//
 		.attr("title", function(d) {
@@ -75,15 +77,63 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			return "translate(" + xScale(dates[0]) + "," + yScale(d) + ")";
 		})//
 		.attr("height", function(d) {
-			if (taskTree.getTask(d).isAtemporal()) {
-				return 5;
+			return yScale.rangeBand();
+		})//
+		.attr("width", function(d) {
+			var task = taskTree.getTask(d);
+			if (task.isAtemporal()) {
+				return task.taskName.length + "em";
 			} else {
-				return yScale.rangeBand();
+				var dates = taskTree.getDates(task);
+				return (xScale(dates[1]) - xScale(dates[0]));
 			}
+		}).on("click", function(d) {
+			if (d3.event.defaultPrevented)
+				return; // click suppressed
+			var task = taskTree.getTask(d);
+			bus.send("select-task", [ d ]);
+			if (task.hasChildren()) {
+				bus.send("toggle-folded-selected");
+			}
+			if (d3.event.ctrlKey && (!task.isGroup() || !task.isAtemporal())) {
+				var statusList = taskTree.getStatusList();
+				var taskStatus = task.getStatus();
+				for (var i = 0; i < statusList.length; i++) {
+					if (taskStatus == statusList[i]) {
+						task.status = statusList[(i + 1) % statusList.length];
+						updateTask(d3.select(this));
+						break;
+					}
+				}
+			}
+		});
+
+	};
+
+	var updateAtemporalTask = function(selection) {
+		selection//
+		.attr("title", function(d) {
+			return d;
+		})//
+		.attr("class", "atemporal-tasks") //
+		.attr("y", 0)//
+		.attr(
+				"transform",
+				function(d) {
+					var dates = taskTree.getDates(taskTree.getTask(d));
+					return "translate(" + xScale(dates[0]) + ","
+							+ (yScale(d) + yScale.rangeBand() - 3) + ")";
+				})//
+		.attr("height", function(d) {
+			console.log(yScale.rangeBand());
+			return yScale.rangeBand() * 2;
 		})//
 		.attr("width", function(d) {
 			var dates = taskTree.getDates(taskTree.getTask(d));
 			return (xScale(dates[1]) - xScale(dates[0]));
+		})//
+		.html(function(d) {
+			return "᛫ " + d;
 		}).on("click", function(d) {
 			if (d3.event.defaultPrevented)
 				return; // click suppressed
@@ -130,6 +180,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	bus.listen("data-ready", function() {
 		timeDomain = taskTree.getTimeDomain();
 		taskNames = taskTree.getTaskNames();
+		atemporalTaskNames = taskTree.getAtemporalTaskNames();
 		xScale = taskTree.getXScale();
 		yScale = taskTree.getYScale();
 		var yRange = yScale.range();
@@ -162,6 +213,14 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		taskSelection.enter().append("rect");
 
 		updateTask(taskSelection);
+
+		// Atemporal tasks texts
+		console.log(atemporalTaskNames);
+		var atemporalTaskSelection = svg.selectAll(".atemporal-tasks").data(atemporalTaskNames);
+		atemporalTaskSelection.exit().remove();
+		atemporalTaskSelection.enter().append("text");
+
+		updateAtemporalTask(atemporalTaskSelection);
 
 		// drag&drop tasks
 		var dx;

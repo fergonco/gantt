@@ -7,6 +7,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 	var xScale;
 	var yScale;
 	var taskNames;
+	var atemporalTaskNames;
 	var statusList;
 
 	var ROOT = {
@@ -16,6 +17,9 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 
 	var FILTER_ALL = function(task) {
 		return task != ROOT;
+	};
+	var FILTER_ATEMPORAL = function(task) {
+		return task.isAtemporal();
 	};
 
 	var FILTER_WITH_DATE = function(task) {
@@ -208,6 +212,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			nameIndicesMap[task.taskName] = index;
 		});
 		taskNames = visitTasks(ROOT, FILTER_ALL, childrenFilter, NAME_EXTRACTOR);
+		atemporalTaskNames = visitTasks(ROOT, FILTER_ATEMPORAL, childrenFilter, NAME_EXTRACTOR);
 		xScale = d3.time.scale().domain(timeDomain).range([ 0, 800 ]).clamp(false);
 		yScale = d3.scale.ordinal().domain(taskNames).rangeRoundBands([ 0, taskNames.length * 20 ],
 				.1);
@@ -269,6 +274,9 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		},
 		"getTaskNames" : function() {
 			return taskNames;
+		},
+		"getAtemporalTaskNames" : function() {
+			return atemporalTaskNames;
 		},
 		"getXScale" : function() {
 			return xScale;

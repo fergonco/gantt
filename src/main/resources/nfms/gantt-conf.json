@@ -1,7 +1,7 @@
 {
 	"requirejs" : {
 		"paths" : {
-			"d3" : "../jslib/d3.v3.min"
+			"d3" : "../jslib/d3_3.5.10"
 		}
 	}
 }

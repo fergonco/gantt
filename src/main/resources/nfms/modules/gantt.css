@@ -29,9 +29,8 @@
 }
 
 .bar-atemporal {
-	fill: none;
-	stroke: #000000;
-	stroke-width: 1px;
+	fill: #ffffff;
+	stroke: none;
 }
 
 .bar-gruppe-closed {

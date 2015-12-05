@@ -14,15 +14,24 @@
 		* DEL para eliminar la tarea seleccionada
 		* F2 para editar el nombre
 
-mostrar árbol de subtareas
-añadir subtarea
-eliminar subtarea
+* filtrar por hoy
+* filtrar por status
+
+* mostrar árbol de subtareas
+* añadir subtarea
+* eliminar subtarea
+
+refactor atemporalTasks update with normal tasks update
+
+deshabilitar scrolling: http://stackoverflow.com/questions/4770025/how-to-disable-scrolling-temporarily#4770179
+
+modos en tareas atemporales: Analyze: counter (start/stop/set), show elapsed time, show 
+
+Gestionar la eliminación del último hijo (eliminar el tasks, folded, etc.)
+
 contador en subtarea: mostrar contador (exclusivo) actual, arrancar, parar
 
 Mostrar lo trabajado según el filtro y acumulado hacia arriba.
-
-* filtrar por hoy
-* filtrar por status
 mover tarea arriba y abajo
 desplegar todos
 

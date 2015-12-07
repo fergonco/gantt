@@ -25,7 +25,7 @@
 
 * deshabilitar scrolling: http://stackoverflow.com/questions/4770025/how-to-disable-scrolling-temporarily#4770179 (rehabilitar scrolling a selección)
 
-fix minitask
+* fix minitask: don't allow a task with same name
 
 modos en tareas atemporales: Analyze: counter (start/stop/set), show elapsed time, show 
 

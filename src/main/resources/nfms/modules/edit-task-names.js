@@ -29,19 +29,11 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		// make the form go away when you jump out (form looses focus) or
 		// hit ENTER:
 		.on("blur", function() {
-			var task = taskTree.getTask(selectedTaskName);
-			if (!cancel) {
-				task.taskName = input.node().value;
-			}
 			// Note to self: frm.remove() will remove the entire <g>
 			// group!
 			// Remember the D3 selection logic!
 			tickSelection.select(".editable").remove();
 			bus.send("enable-keylistener");
-			if (!cancel) {
-				bus.send("refresh-tree");
-				bus.send("select-task", [ task.taskName ]);
-			}
 		}).on("keyup", function() {
 			// IE fix
 			if (!d3.event)
@@ -54,23 +46,14 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 				if (e.stopPropagation)
 					e.stopPropagation();
 				e.preventDefault();
-				input.node().blur();
-				//
-				// var txt = inp.node().value;
-				//
-				// d[field] = txt;
-				// el.text(function(d) {
-				// return d[field];
-				// });
-				//
-				// // odd. Should work in Safari, but the debugger crashes
-				// on
-				// // this instead.
-				// // Anyway, it SHOULD be here and it doesn't hurt
-				// otherwise.
-				// p_el.select("foreignObject").remove();
+
+				var task = taskTree.getTask(selectedTaskName);
+				if (task.setTaskName(input.node().value)) {
+					input.node().blur();
+					bus.send("refresh-tree");
+					bus.send("select-task", [ task.taskName ]);
+				}
 			} else if (e.keyCode == 27) {
-				cancel = true;
 				input.node().blur();
 			}
 		});

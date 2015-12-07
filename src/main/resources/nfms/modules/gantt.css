@@ -72,6 +72,6 @@ html, body {
 .allscreen {
 	width: 100%;
 	height: 95%;
-	overflow: scroll;
+	overflow: hidden;
 	
 }

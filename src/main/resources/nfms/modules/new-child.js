@@ -4,9 +4,8 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 
 	bus.listen("keypress", function(e, d3Event) {
 		if (d3Event.keyCode == 45) {
-			var newTaskName = "new task";
 			var parentTask = taskTree.getTask(selectedTaskName);
-			parentTask.createChild(newTaskName, d3Event.shiftKey);
+			var newTaskName = parentTask.createChild(d3Event.shiftKey);
 			bus.send("refresh-tree");
 			bus.send("select-task", [ newTaskName ]);
 			bus.send("edit-selected");

@@ -157,9 +157,8 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 				newTask["status"] = parentTask.tasks[index].status;
 			}
 			decorateTask(parentTask, newTask);
-			var index = index + 1;
-			if (before) {
-				index = index;
+			if (!before) {
+				index = index + 1;
 			}
 			parentTask.tasks.splice(index, 0, newTask);
 		}

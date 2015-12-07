@@ -6,20 +6,18 @@ define([ "message-bus", "task-tree", "utils" ], function(bus, taskTree, utils) {
 		if (selectedTaskName != null) {
 			var left = d3Event.keyCode == 37;
 			var right = d3Event.keyCode == 39;
-			var resize = d3Event.shiftKey;
-			if (!d3Event.ctrlKey && (left || right)) {
+			var down = d3Event.keyCode == 40;
+			var up = d3Event.keyCode == 38;
+			if (d3Event.ctrlKey && (left || right || up || down)) {
 				task = taskTree.getTask(selectedTaskName);
-				var change;
 				if (left) {
-					change = -utils.DAY_MILLIS;
+					task.moveToParentLevel();
 				} else if (right) {
-					change = +utils.DAY_MILLIS;
-				}
-				var newDate = new Date(task.getStartDate().getTime() + change);
-				task.startDate = utils.formatDate(newDate);
-				if (!resize) {
-					var newDate = new Date(task.getEndDate().getTime() + change);
-					task.endDate = utils.formatDate(newDate);
+					task.moveToNextBrother();
+				} else if (up) {
+					task.moveUp();
+				} else {
+					task.moveDown()
 				}
 				bus.send("refresh-tree");
 			}

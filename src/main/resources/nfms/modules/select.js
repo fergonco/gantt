@@ -41,7 +41,7 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		var up = d3Event.keyCode == 40 || d3Event.keyCode == 34;
 		var down = d3Event.keyCode == 38 || d3Event.keyCode == 33;
 		var big = d3Event.keyCode == 34 || d3Event.keyCode == 33;
-		if (up || down) {
+		if ((up || down) && !d3Event.ctrlKey) {
 			d3Event.preventDefault();
 			var selectedIndex = getSelectedIndex();
 			if (up) {

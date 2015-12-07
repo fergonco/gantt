@@ -106,6 +106,44 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		return name;
 	}
 
+	var move = function(task, direction) {
+		var tasks = task.getParent().tasks;
+		for (var i = 0; i < tasks.length; i++) {
+			if (tasks[i] == task) {
+				tasks.splice(i, 1);
+				var newPos = i - 1;
+				if (direction == "down") {
+					newPos = i + 1;
+				}
+				if (newPos < 0) {
+					newPos = tasks.length;
+				} else if (newPos > tasks.length) {
+					newPos = 0;
+				}
+				tasks.splice(newPos, 0, task);
+				break;
+			}
+		}
+	}
+
+	var getTaskIndex = function(tasks, task) {
+		for (var i = 0; i < tasks.length; i++) {
+			if (tasks[i] == task) {
+				return i;
+			}
+		}
+
+		return null;
+	}
+
+	var createChild = function(task, newTask) {
+		if (!task.hasOwnProperty("tasks")) {
+			task["tasks"] = [];
+		}
+		decorateTask(task, newTask);
+		task.tasks.splice(0, 0, newTask);
+		return newTask.taskName;
+	}
 	var decorateTask = function(parent, task) {
 		task["getParent"] = function() {
 			return parent;
@@ -204,18 +242,14 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			if (atemporal) {
 				task["atemporal-children"] = true;
 			}
-			if (!task.hasOwnProperty("tasks")) {
-				task["tasks"] = [];
-			}
-			decorateTask(task, newTask);
-			task.tasks.splice(0, 0, newTask);
-			return newTask.taskName;
+			return createChild(task, newTask);
 		}
 		task["removeChild"] = function(child) {
 			if (task.hasChildren()) {
 				for (var i = 0; i < task.tasks.length; i++) {
 					if (task.tasks[i] == child) {
 						task.tasks.splice(i, 1);
+						break;
 					}
 				}
 			}
@@ -227,6 +261,31 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			} else {
 				return name == task.taskName;
 			}
+		}
+		task["moveUp"] = function() {
+			move(task, "up");
+		}
+		task["moveDown"] = function() {
+			move(task, "down");
+		}
+		task["moveToParentLevel"] = function() {
+			if (task.getParent() == null || task.getParent().getParent() == null) {
+				return;
+			}
+			var taskIndex = getTaskIndex(task.getParent().tasks, task);
+			var parentIndex = getTaskIndex(task.getParent().getParent().tasks, task.getParent());
+			task.getParent().tasks.splice(taskIndex, 1);
+			task.getParent().getParent().tasks.splice(parentIndex + 1, 0, task);
+		}
+		task["moveToNextBrother"] = function() {
+			var tasks = task.getParent().tasks;
+			var taskIndex = getTaskIndex(tasks, task);
+			var brotherIndex = taskIndex + 1;
+			if (taskIndex == tasks.length - 1) {
+				brotherIndex = taskIndex - 1;
+			}
+			createChild(tasks[brotherIndex], task);
+			tasks.splice(taskIndex, 1);
 		}
 	}
 

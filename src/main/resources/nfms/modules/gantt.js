@@ -46,12 +46,6 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	.attr("height", height + margin.top + margin.bottom)//
 	.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
-	var drag = d3.behavior.drag().on("drag", function() {
-		var node = d3.select(this).node().parentNode;
-		node.scrollTop = node.scrollTop - d3.event.dy;
-	});
-	d3.select("body").select(".chart").call(drag);
-
 	var updateTask = function(selection) {
 		selection//
 		.attr("title", function(d) {

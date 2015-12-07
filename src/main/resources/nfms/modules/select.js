@@ -31,27 +31,33 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		})//
 		.attr("width", x2 - x1)//
 		.attr("height", taskTree.getYScale().rangeBand());
+
+		var container = d3.select(".allscreen").node();
+		container.scrollTop = y1 - container.clientHeight / 2;
 	};
 
 	bus.listen("keypress", function(e, d3Event) {
-		if (d3Event.keyCode == 40 || d3Event.keyCode == 38) {
+		var increment = -1;
+		var up = d3Event.keyCode == 40 || d3Event.keyCode == 34;
+		var down = d3Event.keyCode == 38 || d3Event.keyCode == 33;
+		var big = d3Event.keyCode == 34 || d3Event.keyCode == 33;
+		if (up || down) {
+			d3Event.preventDefault();
 			var selectedIndex = getSelectedIndex();
-			if (d3Event.keyCode == 40) {
-				d3Event.preventDefault();
+			if (up) {
 				if (selectedIndex == null) {
 					selectedIndex = 0;
 				} else {
-					selectedIndex++;
+					selectedIndex += big ? 10 : 1;
 					if (selectedIndex > taskNames.length - 1) {
 						selectedIndex = 0;
 					}
 				}
-			} else if (d3Event.keyCode == 38) {
-				d3Event.preventDefault();
+			} else if (down) {
 				if (selectedIndex == null) {
 					selectedIndex = taskNames.length - 1;
 				} else {
-					selectedIndex--;
+					selectedIndex -= big ? 10 : 1;
 					if (selectedIndex < 0) {
 						selectedIndex = taskNames.length - 1
 					}

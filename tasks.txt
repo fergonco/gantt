@@ -21,9 +21,11 @@
 * añadir subtarea
 * eliminar subtarea
 
-refactor atemporalTasks update with normal tasks update
+* refactor atemporalTasks update with normal tasks update
 
-deshabilitar scrolling: http://stackoverflow.com/questions/4770025/how-to-disable-scrolling-temporarily#4770179
+* deshabilitar scrolling: http://stackoverflow.com/questions/4770025/how-to-disable-scrolling-temporarily#4770179 (rehabilitar scrolling a selección)
+
+fix minitask
 
 modos en tareas atemporales: Analyze: counter (start/stop/set), show elapsed time, show 
 

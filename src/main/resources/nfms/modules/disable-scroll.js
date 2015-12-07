@@ -1,5 +1,8 @@
 define([], function() {
 	var keys = {
+		32 : 1,
+		33 : 1,
+		34 : 1,
 		37 : 1,
 		38 : 1,
 		39 : 1,
@@ -24,8 +27,8 @@ define([], function() {
 		window.addEventListener('DOMMouseScroll', preventDefault, false);
 	window.onwheel = preventDefault; // modern standard
 	window.onmousewheel = document.onmousewheel = preventDefault; // older
-																	// browsers,
-																	// IE
+	// browsers,
+	// IE
 	window.ontouchmove = preventDefault; // mobile
 	document.onkeydown = preventDefaultForScrollKeys;
 

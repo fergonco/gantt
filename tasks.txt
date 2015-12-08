@@ -33,14 +33,13 @@ contador en subtarea: mostrar contador (exclusivo) actual, arrancar, parar
 	* mostrar indicador en el padre cuando un descendiente tiene contador activado.
 	* when a timer starts all other stop
 	* mostrar el timer en movimiento
-	Reporte diario de horas
+	* Reporte diario de horas
 
-Poder meter texto plano en un nodo
+* Poder meter texto plano en un nodo
 
 Gestionar la eliminación del último hijo (eliminar el tasks, folded, etc.)
 
 Mostrar lo trabajado según el filtro y acumulado hacia arriba.
-mover tarea arriba y abajo
 desplegar todos
 
 estimar subtareas y mostrar estimación en tarea

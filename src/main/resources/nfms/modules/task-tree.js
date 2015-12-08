@@ -346,6 +346,13 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			}
 			return acum;
 		}
+		task["getContent"] = function() {
+			if (task.hasOwnProperty("content")) {
+				return task.content;
+			} else {
+				return "";
+			}
+		}
 	}
 
 	bus.listen("refresh-tree", function(e) {

@@ -317,7 +317,12 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			return false;
 		}
 		task["getTimeRecordSum"] = function(min, max) {
-			if (task.isAtemporal()) {
+			var acum = 0;
+			if (task.hasChildren()) {
+				for (var i = 0; i < task.tasks.length; i++) {
+					acum += task.tasks[i].getTimeRecordSum();
+				}
+			} else if (task.isAtemporal()) {
 				if (task.hasOwnProperty("timeRecords")) {
 					if (!min) {
 						min = 0;
@@ -326,7 +331,6 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 						max = Number.MAX_VALUE;
 					}
 
-					var acum = 0;
 					for (var i = 0; i < task.timeRecords.length; i++) {
 						var record = task.timeRecords[i];
 						var end;
@@ -338,11 +342,9 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 						var start = Math.max(min, record.start);
 						acum = acum + end - start;
 					}
-
-					return acum;
 				}
 			}
-			return 0;
+			return acum;
 		}
 	}
 

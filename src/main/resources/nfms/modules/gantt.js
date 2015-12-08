@@ -116,19 +116,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			var ret = "᛫ " + d;
 			var timeSum = taskTree.getTask(d).getTimeRecordSum();
 			if (timeSum > 0) {
-				var hours = Math.trunc(timeSum / (60 * 60 * 1000));
-				var minutes = Math.trunc((timeSum % (60 * 60 * 1000)) / (60 * 1000));
-				var seconds = Math.trunc((timeSum % (60 * 1000)) / 1000);
-				ret += ": ";
-				if (hours > 0) {
-					ret += hours + "h";
-				}
-				if (minutes > 0) {
-					ret += minutes + "m";
-				}
-				if (seconds > 0) {
-					ret += seconds + "s";
-				}
+				ret += ": " + utils.formatTime(timeSum);
 			}
 			return ret;
 		});

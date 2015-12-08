@@ -26,6 +26,8 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 
 				return selectedTaskName;
 			}).attr("style", "width: 594px;");
+		}, function(e) {
+			return e.keyCode == 13
 		}, function(text) {
 			return taskTree.getTask(selectedTaskName).setTaskName(text);
 		});
@@ -44,13 +46,15 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 			})//
 			.attr("style", "width: 594px;")//
 			.attr("rows", "15");
+		}, function(e) {
+			return e.keyCode == 13 && e.shiftKey
 		}, function(text) {
 			task["content"] = text;
 			return true;
 		});
 	});
 
-	var edit = function(builder, enterAction) {
+	var edit = function(builder, acceptInput, enterAction) {
 		var tickSelection = d3.select(".gantt-chart").selectAll(".y.axis .tick").filter(
 				function(d) {
 					return d == selectedTaskName;
@@ -71,7 +75,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 				d3.event = window.event;
 
 			var e = d3.event;
-			if (e.keyCode == 13) {
+			if (acceptInput(e)) {
 				if (typeof (e.cancelBubble) !== 'undefined') // IE
 					e.cancelBubble = true;
 				if (e.stopPropagation)

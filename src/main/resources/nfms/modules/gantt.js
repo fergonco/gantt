@@ -113,7 +113,24 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 							+ (yScale(d) + yScale.rangeBand() - 3) + ")";
 				})//
 		.html(function(d) {
-			return "᛫ " + d;
+			var ret = "᛫ " + d;
+			var timeSum = taskTree.getTask(d).getTimeRecordSum();
+			if (timeSum > 0) {
+				var hours = Math.trunc(timeSum / (60 * 60 * 1000));
+				var minutes = Math.trunc((timeSum % (60 * 60 * 1000)) / (60 * 1000));
+				var seconds = Math.trunc((timeSum % (60 * 1000)) / 1000);
+				ret += ": ";
+				if (hours > 0) {
+					ret += hours + "h";
+				}
+				if (minutes > 0) {
+					ret += minutes + "m";
+				}
+				if (seconds > 0) {
+					ret += seconds + "s";
+				}
+			}
+			return ret;
 		});
 
 	};
@@ -282,4 +299,18 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 
 		bus.send("gantt-created", [ svg ]);
 	});
+
+	bus.listen("refresh-task", function(e, taskName) {
+		var task = taskTree.getTask(taskName);
+		if (task.isAtemporal()) {
+			updateAtemporalTask(d3.selectAll(".atemporal-tasks").filter(function(d) {
+				return d == taskName;
+			}));
+		} else {
+			updateTask(d3.selectAll(".task").filter(function(d) {
+				return d == taskName;
+			}));
+		}
+	});
+
 });

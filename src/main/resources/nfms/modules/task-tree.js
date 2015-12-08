@@ -287,6 +287,63 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			createChild(tasks[brotherIndex], task);
 			tasks.splice(taskIndex, 1);
 		}
+		task["startTimeRecord"] = function(time) {
+			if (task.isAtemporal()) {
+				if (!task.hasOwnProperty("timeRecords")) {
+					task["timeRecords"] = [];
+				}
+				task["timeRecords"].push({
+					"start" : time
+				});
+			}
+		}
+		task["stopTimeRecord"] = function(time) {
+			if (task.isAtemporal()) {
+				if (task.hasOwnProperty("timeRecords")) {
+					var last = task.timeRecords[task.timeRecords.length - 1];
+					if (!last.hasOwnProperty("end")) {
+						last["end"] = time;
+					}
+				}
+			}
+		}
+		task["hasOpenTimeRecord"] = function(time) {
+			if (task.isAtemporal()) {
+				if (task.hasOwnProperty("timeRecords")) {
+					var last = task.timeRecords[task.timeRecords.length - 1];
+					return !last.hasOwnProperty("end");
+				}
+			}
+			return false;
+		}
+		task["getTimeRecordSum"] = function(min, max) {
+			if (task.isAtemporal()) {
+				if (task.hasOwnProperty("timeRecords")) {
+					if (!min) {
+						min = 0;
+					}
+					if (!max) {
+						max = Number.MAX_VALUE;
+					}
+
+					var acum = 0;
+					for (var i = 0; i < task.timeRecords.length; i++) {
+						var record = task.timeRecords[i];
+						var end;
+						if (record.hasOwnProperty("end")) {
+							end = Math.min(max, record.end);
+						} else {
+							end = new Date().getTime();
+						}
+						var start = Math.max(min, record.start);
+						acum = acum + end - start;
+					}
+
+					return acum;
+				}
+			}
+			return 0;
+		}
 	}
 
 	bus.listen("refresh-tree", function(e) {

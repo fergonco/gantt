@@ -7,7 +7,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		}, taskTree.VISIT_UNFOLDED_CHILDREN, function(task) {
 			taskNames.push(task.taskName);
 		});
-		var selection = d3.select(".gantt-chart").selectAll(".taskTimer").data(taskNames);
+		var selection = d3.select(".gantt-chart").selectAll(".taskContentIndicator").data(taskNames);
 		selection.exit().remove();
 		selection.enter().append("rect");
 

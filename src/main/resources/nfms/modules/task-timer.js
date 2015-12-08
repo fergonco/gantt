@@ -8,10 +8,10 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		if (d3Event.keyCode == 32 && selectedTaskName != null) {
 			var task = taskTree.getTask(selectedTaskName);
 			if (task.isAtemporal()) {
+				window.clearInterval(timerId);
 				if (task.hasOpenTimeRecord()) {
 					task.stopTimeRecord(new Date().getTime());
 					taskWithOpenTimeRecord = null;
-					window.clearInterval(timerId);
 				} else {
 					if (taskWithOpenTimeRecord != null) {
 						taskTree.getTask(taskWithOpenTimeRecord).stopTimeRecord(

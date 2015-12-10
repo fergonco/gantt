@@ -214,7 +214,8 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		// Tasks date handlers
 		var taskDates = [];
 		for (var i = 0; i < taskNames.length; i++) {
-			if (!taskTree.getTask(taskNames[i]).isAtemporal()) {
+			var task = taskTree.getTask(taskNames[i]);
+			if (!task.isAtemporal() && !task.isGroup()) {
 				taskDates.push({
 					"taskName" : taskNames[i],
 					"dateIndex" : 0

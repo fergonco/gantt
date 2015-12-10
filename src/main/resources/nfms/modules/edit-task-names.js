@@ -4,7 +4,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 
 	bus.listen("keypress", function(e, d3Event) {
 		if (d3Event.keyCode == 113 && selectedTaskName != null) {
-			if (d3Event.shiftKey) {
+			if (d3Event.ctrlKey) {
 				bus.send("edit-selected-content");
 			} else {
 				bus.send("edit-selected-name");

@@ -56,10 +56,8 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			var barClass;
 			if (task.isAtemporal()) {
 				barClass = "atemporal";
-			} else if (task.isGroup()) {
-				if (task.isFolded()) {
-					barClass = "gruppe-closed";
-				}
+			} else if (task.isGroup() && task.isFolded()) {
+				barClass = "gruppe-closed";
 			} else {
 				barClass = task.getStatus();
 			}

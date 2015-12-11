@@ -13,20 +13,23 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 	});
 
 	bus.listen("edit-selected-name", function() {
-		edit(function(tickSelection) {
-			return tickSelection.append("foreignObject")//
-			.attr("width", "600px")//
-			.attr("height", "25px")//
-			.attr("class", "editable")//
-			.append("xhtml:input").attr("value", function() {
-				// nasty spot to place this call, but here we are sure that the
-				// <input> tag is available
-				// and is handily pointed at by 'this':
-				this.focus();
+		var tickSelection = d3.select(".gantt-chart").selectAll(".y.axis .tick").filter(
+				function(d) {
+					return d == selectedTaskName;
+				});
+		var input = tickSelection.append("foreignObject")//
+		.attr("width", "600px")//
+		.attr("height", "25px")//
+		.attr("class", "editable-line")//
+		.append("xhtml:input").attr("value", function() {
+			// nasty spot to place this call, but here we are sure that the
+			// <input> tag is available
+			// and is handily pointed at by 'this':
+			this.focus();
 
-				return selectedTaskName;
-			}).attr("style", "width: 594px;");
-		}, function(e) {
+			return selectedTaskName;
+		}).attr("style", "width: 594px;");
+		edit(input, function(e) {
 			return e.keyCode == 13
 		}, function(text) {
 			return taskTree.getTask(selectedTaskName).setTaskName(text);
@@ -35,18 +38,16 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 
 	bus.listen("edit-selected-content", function() {
 		var task = taskTree.getTask(selectedTaskName);
-		edit(function(tickSelection) {
-			return tickSelection.append("foreignObject")//
-			.attr("width", "600px")//
-			.attr("height", "15em")//
-			.attr("class", "editable")//
-			.append("xhtml:textarea").html(function() {
-				this.focus();
-				return task.getContent();
-			})//
-			.attr("style", "width: 594px;")//
-			.attr("rows", "15");
-		}, function(e) {
+		var input = d3.select("body").append("div")//
+		.attr("class", "editable")//
+		.append("xhtml:textarea").html(function() {
+			this.focus();
+			return task.getContent();
+		})//
+		.style("width", "100%")//
+		.style("height", "100%")//
+		.attr("rows", "15");
+		edit(input, function(e) {
 			return e.keyCode == 13 && e.shiftKey
 		}, function(text) {
 			task["content"] = text;
@@ -54,22 +55,16 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		});
 	});
 
-	var edit = function(builder, acceptInput, enterAction) {
-		var tickSelection = d3.select(".gantt-chart").selectAll(".y.axis .tick").filter(
-				function(d) {
-					return d == selectedTaskName;
-				});
-		var cancel = false;
-		var input = builder(tickSelection)
+	var edit = function(input, acceptInput, enterAction) {
 		// make the form go away when you jump out (form looses focus) or
 		// hit ENTER:
-		.on("blur", function() {
+		input.on("blur", function() {
 			// Note to self: frm.remove() will remove the entire <g>
 			// group!
 			// Remember the D3 selection logic!
-			tickSelection.select(".editable").remove();
+			input.remove();
 			bus.send("enable-keylistener");
-		}).on("keyup", function() {
+		}).on("keydown", function() {
 			// IE fix
 			if (!d3.event)
 				d3.event = window.event;

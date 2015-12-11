@@ -7,7 +7,7 @@ define([ "message-bus", "d3" ], function(bus) {
 	bus.listen("enable-keylistener", function() {
 		enabled = true;
 	});
-	document.onkeyup = function(e) {
+	document.onkeydown = function(e) {
 		if (enabled) {
 			bus.send("keypress", [ e ]);
 		}

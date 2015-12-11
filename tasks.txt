@@ -37,7 +37,11 @@
 
 * Poder meter texto plano en un nodo
 
+* mostrar qué hijos pertenecen al grupo abierto
+
+Deshacer
 Ctrl + T para añadir un registro de tiempo
+Filtrar la suma de tiempos por día o por período (instalar dos marcadores móviles).
 Editar nodo fuera del svg. Borrar comentario debe quitar el icono.
 que los botones no se queden el foco
 
@@ -49,7 +53,9 @@ capa atemporal con contador pierde contador si se le dan hijos
 Posibilidad de "archivar" tarea. Ya no se trabaja en ella pero se computa su tiempo.
 
 Mostrar los nodos que tienen tareas atemporales.
+Añadir rallado horizontal
 set root?
+Intentar cambiar de zoom a día y tratar de planificar el día así
 expandir o recoger completamente un nodo
 background del texto no funciona
 

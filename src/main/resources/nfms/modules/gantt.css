@@ -23,20 +23,20 @@
 }
 
 .bar-gruppe {
-	fill: #bbbbbb;
+	fill: #eeeeee;
 	stroke: #000000;
 	stroke-width: 1px;
+}
+
+
+.bar-gruppe-closed {
+	fill: #000000;
 }
 
 .bar-atemporal {
 	fill: #ffffff;
 	stroke: none;
 }
-
-.bar-gruppe-closed {
-	fill: #000000;
-}
-
 .weekend {
 	fill: #bbbbbb;
 }
@@ -62,7 +62,8 @@
 .today {
 	stroke: #770000;
 	stroke-width: 1px;
-	fill: none;
+	fill: #ffff00;
+	opacity: 0.2;
 }
 
 html, body {

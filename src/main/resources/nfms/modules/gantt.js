@@ -13,7 +13,11 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 
 	var getWeekends = function(timeDomain) {
 		var ret = [];
-		var startDate = timeDomain[0];
+		var startDate = new Date(timeDomain[0]);
+		startDate.setHours(0);
+		startDate.setMinutes(0);
+		startDate.setSeconds(0);
+		startDate.setMilliseconds(0);
 		var daysUntilSaturday = 6 - startDate.getDay();
 		var firstSaturday = new Date(startDate.getTime() + daysUntilSaturday * utils.DAY_MILLIS);
 		while (firstSaturday < timeDomain[1]) {
@@ -65,7 +69,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		}) //
 		.attr("y", 0)//
 		.attr("transform", function(d) {
-			var dates = taskTree.getDates(taskTree.getTask(d));
+			var dates = taskTree.getTask(d).getPresentationTimeDomain();
 			return "translate(" + xScale(dates[0]) + "," + yScale(d) + ")";
 		})//
 		.attr("height", function(d) {
@@ -73,7 +77,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		})//
 		.attr("width", function(d) {
 			var task = taskTree.getTask(d);
-			var dates = taskTree.getDates(task);
+			var dates = task.getPresentationTimeDomain();
 			return (xScale(dates[1]) - xScale(dates[0]));
 		}).on("click", function(d) {
 			if (d3.event.defaultPrevented)
@@ -106,7 +110,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		.attr(
 				"transform",
 				function(d) {
-					var dates = taskTree.getDates(taskTree.getTask(d));
+					var dates = taskTree.getTask(d).getPresentationTimeDomain();
 					return "translate(" + xScale(dates[0]) + ","
 							+ (yScale(d) + yScale.rangeBand() - 3) + ")";
 				})//
@@ -128,9 +132,9 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		.attr("y", 0)//
 		.attr("transform", function(d) {
 			var task = taskTree.getTask(d.taskName);
-			var dates = taskTree.getDates(task);
+			var dates = task.getPresentationTimeDomain();
 			var x = xScale(dates[d.dateIndex]);
-			if (d.dateIndex == 0) {
+			if (d.dateIndex == 1) {
 				x -= handleWidth;
 			}
 			return "translate(" + x + "," + yScale(d.taskName) + ")";
@@ -211,6 +215,35 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		});
 		taskSelection.call(drag);
 
+		// Group markers
+		var groupTaskNames = [];
+		for (var i = 0; i < taskNames.length; i++) {
+			var task = taskTree.getTask(taskNames[i]);
+			if (task.isGroup() && !task.isFolded()) {
+				groupTaskNames.push(taskNames[i]);
+			}
+		}
+		var groupMarkerSelection = svg.selectAll(".groupMarker").data(groupTaskNames);
+		groupMarkerSelection.exit().remove();
+		groupMarkerSelection.enter().append("path");
+		groupMarkerSelection//
+		.attr("class", "groupMarker")//
+		.attr("fill", "none")//
+		.attr("stroke", "#000000")//
+		.attr("stroke-width", "1")//
+		.attr("d", function(d) {
+			var task = taskTree.getTask(d);
+			var dates = task.getPresentationTimeDomain();
+			var x = xScale(dates[0]);
+			var y1 = yScale(d);
+			var t = task;
+			while (t.hasChildren() && !t.isFolded()) {
+				t = t.tasks[t.tasks.length - 1];
+			}
+			var y2 = yScale(t.taskName) + yScale.rangeBand();
+			return "M " + x + " " + y1 + " L " + x + " " + y2 + " L " + (x + 10) + " " + y2;
+		});
+
 		// Tasks date handlers
 		var taskDates = [];
 		for (var i = 0; i < taskNames.length; i++) {
@@ -262,7 +295,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		// Today
 		var todaySelection = svg.selectAll(".today").data([ utils.today ]);
 		todaySelection.exit().remove();
-		todaySelection.enter().append("rect");
+		todaySelection.enter().insert("rect", ":first-child");
 		todaySelection.attr("class", "today").attr("x", dayX).attr("y", dayY).attr("width",
 				function(d) {
 					return xScale(new Date(d.getTime() + utils.DAY_MILLIS)) - xScale(d);

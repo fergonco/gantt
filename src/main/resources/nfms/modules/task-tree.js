@@ -61,20 +61,6 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		return ret;
 	}
 
-	var getDates = function(task) {
-		var min = null;
-		var max = null;
-		var timeDomain = visitTasks(task, FILTER_WITH_DATE, VISIT_ALL_GROUPS, function(task) {
-			if (min == null || min > task.getStartDate()) {
-				min = task.getStartDate();
-			}
-			if (max == null || max < task.getEndDate()) {
-				max = task.getEndDate();
-			}
-		});
-		return [ min, max ];
-	}
-
 	var getTask = function(taskName) {
 		var taskIndices = nameIndicesMap[taskName];
 		var ret = ROOT;
@@ -190,8 +176,8 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		task["getEndDate"] = function() {
 			if (task.isAtemporal()) {
 				var parentDate = task.getParent().getEndDate();
-				return new Date(parentDate.getTime() + 2 * utils.DAY_MILLIS);
-			} else if (!task.hasOwnProperty("tasks") || task["atemporal-children"]) {
+				return new Date(parentDate.getTime() + utils.DAY_MILLIS);
+			} else if (!task.isGroup()) {
 				if (task.hasOwnProperty("endDate")) {
 					return new Date(task["endDate"]);
 				} else {
@@ -353,6 +339,29 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 				return "";
 			}
 		}
+		task["getPresentationTimeDomain"] = function() {
+			var ret;
+			if (task.isGroup()) {
+				var min = null;
+				var max = null;
+				for (var i = 0; i < task.tasks.length; i++) {
+					var childTimeDomain = task.tasks[i].getPresentationTimeDomain();
+					if (min == null || min > childTimeDomain[0]) {
+						min = childTimeDomain[0];
+					}
+					if (max == null || max < childTimeDomain[1]) {
+						max = childTimeDomain[1];
+					}
+				}
+				ret = [ new Date(min.getTime() - utils.DAY_MILLIS / 6),
+						new Date(max.getTime() + utils.DAY_MILLIS / 6) ];
+			} else {
+				ret = [ task.getStartDate(), task.getEndDate() ];
+			}
+
+			return ret;
+		}
+
 	}
 
 	bus.listen("refresh-tree", function(e) {
@@ -360,7 +369,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		visitTasks(ROOT, FILTER_ALL, VISIT_ALL_CHILDREN, function(task, index, parent) {
 			decorateTask(parent, task);
 		});
-		timeDomain = getDates(ROOT);
+		timeDomain = ROOT.getPresentationTimeDomain();
 		var childrenFilter = userChildrenFilter != null ? VISIT_ALL_CHILDREN
 				: VISIT_UNFOLDED_CHILDREN;
 		visitTasks(ROOT, FILTER_ALL, childrenFilter, function(task, index) {
@@ -423,7 +432,6 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		"VISIT_UNFOLDED_CHILDREN" : VISIT_UNFOLDED_CHILDREN,
 		"NAME_EXTRACTOR" : NAME_EXTRACTOR,
 		"visitTasks" : visitTasks,
-		"getDates" : getDates,
 		"getTimeDomain" : function() {
 			return timeDomain;
 		},

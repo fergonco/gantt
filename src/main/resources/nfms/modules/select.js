@@ -26,7 +26,7 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		selectedTasksJoin.attr("class", "taskSelection")//
 		.attr("y", 0)//
 		.attr("transform", function(d) {
-			var dates = taskTree.getDates(taskTree.getTask(d));
+			var dates = taskTree.getTask(d).getPresentationTimeDomain();
 			return "translate(" + x1 + "," + y1 + ")";
 		})//
 		.attr("width", x2 - x1)//

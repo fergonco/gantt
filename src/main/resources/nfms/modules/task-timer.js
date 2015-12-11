@@ -48,7 +48,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		var r = 5;
 		selection.attr("class", "taskTimer")//
 		.attr("transform", function(d) {
-			var dates = taskTree.getDates(taskTree.getTask(d));
+			var dates = taskTree.getTask(d).getPresentationTimeDomain();
 			var x = taskTree.getXScale()(dates[0]) + 2 * r;
 			var y = taskTree.getYScale()(d) + taskTree.getYScale().rangeBand() / 2;
 			return "translate(" + x + "," + y + ")";

@@ -48,7 +48,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		.style("height", "100%")//
 		.attr("rows", "15");
 		edit(input, function(e) {
-			return e.keyCode == 13 && e.shiftKey
+			return e.keyCode == 13 && e.ctrlKey
 		}, function(text) {
 			task["content"] = text;
 			return true;

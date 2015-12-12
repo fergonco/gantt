@@ -353,8 +353,8 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 						max = childTimeDomain[1];
 					}
 				}
-				ret = [ new Date(min.getTime() - utils.DAY_MILLIS / 6),
-						new Date(max.getTime() + utils.DAY_MILLIS / 6) ];
+				ret = [ new Date(min.getTime() - utils.DAY_MILLIS / 3),
+						new Date(max.getTime() + utils.DAY_MILLIS / 3) ];
 			} else {
 				ret = [ task.getStartDate(), task.getEndDate() ];
 			}

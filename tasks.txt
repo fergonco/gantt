@@ -40,8 +40,8 @@
 * mostrar qué hijos pertenecen al grupo abierto
 * Editar nodo fuera del svg. Borrar comentario debe quitar el icono.
 * Ctrl + T para añadir un registro de tiempo
+* Mostrar los nodos que tienen tareas atemporales.
 
-Mostrar los nodos que tienen tareas atemporales.
 Filtrar la suma de tiempos por día o por período (instalar dos marcadores móviles).
 que los botones no se queden el foco
 

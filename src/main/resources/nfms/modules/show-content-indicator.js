@@ -16,10 +16,10 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		selection.attr("class", "taskContentIndicator")//
 		.attr("x", function(d) {
 			var dates = taskTree.getTask(d).getPresentationTimeDomain();
-			return taskTree.getXScale()(dates[1]) - size;
+			return taskTree.getXScale()(dates[1]) - size - 5;
 		})//
 		.attr("y", function(d) {
-			return taskTree.getYScale()(d) + taskTree.getYScale().rangeBand() / 4;
+			return taskTree.getYScale()(d);
 		})//
 		.attr("width", size)//
 		.attr("height", size);

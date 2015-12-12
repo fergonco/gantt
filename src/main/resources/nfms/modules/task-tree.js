@@ -145,7 +145,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			return task.hasChildren() && !task["atemporal-children"];
 		}
 		task["hasChildren"] = function() {
-			return task.hasOwnProperty("tasks");
+			return task.hasOwnProperty("tasks") && task.tasks.length > 0;
 		}
 		task["isFolded"] = function() {
 			return task.hasOwnProperty("folded") && task.folded == true;

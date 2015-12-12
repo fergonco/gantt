@@ -39,23 +39,23 @@
 
 * mostrar qué hijos pertenecen al grupo abierto
 * Editar nodo fuera del svg. Borrar comentario debe quitar el icono.
+* Ctrl + T para añadir un registro de tiempo
 
-Ctrl + T para añadir un registro de tiempo
+Mostrar los nodos que tienen tareas atemporales.
 Filtrar la suma de tiempos por día o por período (instalar dos marcadores móviles).
 que los botones no se queden el foco
 
 Gestionar la eliminación del último hijo (eliminar el tasks, folded, etc.)
 nuevo hijo en atemporal se ralla (al dibujar)
 
-Deshacer
-Las marcas de notas quedan a veces por debajo de la barra. La edición es imposible si la tarea está abajo del todo y al pulsar Ctrl+enter se introduce un enter en la nota
+Las marcas de notas quedan a veces por debajo de la barra.
 capa atemporal con contador pierde contador si se le dan hijos
 Posibilidad de "archivar" tarea. Ya no se trabaja en ella pero se computa su tiempo.
 
-Mostrar los nodos que tienen tareas atemporales.
+Intentar cambiar de zoom a día y tratar de planificar el día así
+Deshacer
 Añadir rallado horizontal
 set root?
-Intentar cambiar de zoom a día y tratar de planificar el día así
 expandir o recoger completamente un nodo
 background del texto no funciona
 

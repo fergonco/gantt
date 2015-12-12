@@ -13,9 +13,9 @@ define(
 								.getStartDate() < weekStart && task.getEndDate() > weekEnd));
 			};
 
-			d3.select("body").append("input")//
-			.attr("type", "button")//
-			.attr("value", "Mostrar semana").on("click", function() {
+			d3.select("body").append("div")//
+			.attr("class", "button")//
+			.html("Mostrar semana").on("click", function() {
 				bus.send("filter", [ FILTER_WEEK ]);
 			});
 

@@ -19,7 +19,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 			var x = taskTree.getXScale()(dates[1]) - size - 5;
 			var y1 = taskTree.getYScale()(d) + taskTree.getYScale().rangeBand() - size;
 			var y2 = y1 + size;
-			ret = "M " + x + " " + y1 + " L " + x + " " + y2;
+			var ret = "M " + x + " " + y1 + " L " + x + " " + y2;
 			for (var y = y1; y < y2; y += 2) {
 				ret += " M " + x + " " + y + " L " + (x + size) + " " + y;
 			}
@@ -29,4 +29,5 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 		.attr("height", size);
 
 	});
+
 });

@@ -3,7 +3,8 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	var height;
 	var width;
 	var svg;
-
+	var level1, level2, level3, level4;
+	
 	var timeDomain;
 	var taskNames;
 	var atemporalTaskNames;
@@ -49,6 +50,11 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	.attr("width", width + margin.left + margin.right)//
 	.attr("height", height + margin.top + margin.bottom)//
 	.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+	level1 = svg.append("g");
+	level2 = svg.append("g");
+	level3 = svg.append("g");
+	level4 = svg.append("g");
 
 	var updateTask = function(selection) {
 		selection//
@@ -167,7 +173,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			return height - margin.top - margin.bottom;
 		};
 		var saturdays = getWeekends(timeDomain);
-		var weekendSelection = svg.selectAll(".weekend").data(saturdays);
+		var weekendSelection = level1.selectAll(".weekend").data(saturdays);
 		weekendSelection.exit().remove();
 		weekendSelection.enter().insert("rect", ":first-child");
 		weekendSelection.attr("class", "weekend").attr("x", dayX).attr("y", dayY).attr("width",
@@ -176,14 +182,15 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				}).attr("height", dayHeight);
 
 		// Tasks
-		var taskSelection = svg.selectAll(".tasks").data(taskNames);
+		var taskSelection = level3.selectAll(".tasks").data(taskNames);
 		taskSelection.exit().remove();
 		taskSelection.enter().append("rect");
 
 		updateTask(taskSelection);
 
 		// Atemporal tasks texts
-		var atemporalTaskSelection = svg.selectAll(".atemporal-tasks").data(atemporalTaskNames);
+		var atemporalTaskSelection = level3.selectAll(".atemporal-tasks").data(
+				atemporalTaskNames);
 		atemporalTaskSelection.exit().remove();
 		atemporalTaskSelection.enter().append("text");
 
@@ -223,7 +230,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				groupTaskNames.push(taskNames[i]);
 			}
 		}
-		var groupMarkerSelection = svg.selectAll(".groupMarker").data(groupTaskNames);
+		var groupMarkerSelection = level3.selectAll(".groupMarker").data(groupTaskNames);
 		groupMarkerSelection.exit().remove();
 		groupMarkerSelection.enter().append("path");
 		groupMarkerSelection//
@@ -259,7 +266,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				});
 			}
 		}
-		var taskDatesSelection = svg.selectAll(".taskdates").data(taskDates);
+		var taskDatesSelection = level4.selectAll(".taskdates").data(taskDates);
 		taskDatesSelection.exit().remove();
 		taskDatesSelection.enter().append("rect");
 
@@ -293,7 +300,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		taskDatesSelection.call(drag);
 
 		// Today
-		var todaySelection = svg.selectAll(".today").data([ utils.today ]);
+		var todaySelection = level2.selectAll(".today").data([ utils.today ]);
 		todaySelection.exit().remove();
 		todaySelection.enter().insert("rect", ":first-child");
 		todaySelection.attr("class", "today").attr("x", dayX).attr("y", dayY).attr("width",

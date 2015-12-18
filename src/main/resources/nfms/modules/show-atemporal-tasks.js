@@ -3,7 +3,7 @@ define([ "message-bus", "task-tree" ], function(bus, taskTree) {
 	bus.listen("gantt-created", function() {
 		var taskNames = [];
 		taskTree.visitTasks(taskTree.ROOT, function(task) {
-			return task.hasChildren() && !task.isGroup();
+			return task.hasChildren() && !task.isGroup() && !task.isAtemporal();
 		}, taskTree.VISIT_UNFOLDED_CHILDREN, function(task) {
 			taskNames.push(task.taskName);
 		});

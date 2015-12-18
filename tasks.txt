@@ -44,13 +44,20 @@
 * que los botones no se queden el foco
 * Filtrar la suma de tiempos por día o por período (instalar dos marcadores móviles).
 
-Obtener sumas de tiempo en función del intervalo temporal seleccionado.
-Gestionar la eliminación del último hijo (eliminar el tasks, folded, etc.)
-nuevo hijo en atemporal se ralla (al dibujar)
+* Orden de dibujado
+* Al eliminar seleccionar el siguiente o el anterior si no hay siguiente.
+* No marcar hijos atemporales en tareas atemporales
+* nuevo hijo en atemporal se ralla al dibujar (parece que toma el margen de los grupos)
+* Cuando se inserta una tarea sin shift y es la primera el flag de atemporal debería ponerse a false
 
 Intentar cambiar de zoom a día y tratar de planificar el día así
 capa atemporal con contador pierde contador si se le dan hijos
 Posibilidad de "archivar" tarea. Ya no se trabaja en ella pero se computa su tiempo.
+
+Obtener sumas de tiempo en función del intervalo temporal seleccionado.
+Gestionar la eliminación del último hijo (eliminar el tasks, folded, etc.)
+tamaño del fondo de la tarea atemporal
+Cuando se añade una capa no se edita su nombre
 
 Las marcas de notas quedan a veces por debajo de la barra.
 

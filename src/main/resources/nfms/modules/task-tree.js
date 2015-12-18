@@ -216,7 +216,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			if (task.hasOwnProperty("status")) {
 				newTask["status"] = task.status;
 			}
-			atemporal = atemporal && !task.isGroup();
+			atemporal = task.isAtemporal() || (atemporal && !task.isGroup());
 			if (!atemporal) {
 				if (task.getStartDate() != null) {
 					newTask.startDate = task.getStartDate();
@@ -224,6 +224,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 				if (task.getEndDate() != null) {
 					newTask.endDate = task.getEndDate();
 				}
+				task["atemporal-children"] = false;
 			}
 			if (atemporal) {
 				task["atemporal-children"] = true;

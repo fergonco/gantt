@@ -1,7 +1,7 @@
 define([ "message-bus", "task-tree", "utils" ], function(bus, taskTree, utils) {
 
 	var selectedTaskName;
-
+	
 	bus.listen("keypress", function(e, d3Event) {
 		if (selectedTaskName != null) {
 			var left = d3Event.keyCode == 37;
@@ -11,9 +11,9 @@ define([ "message-bus", "task-tree", "utils" ], function(bus, taskTree, utils) {
 				task = taskTree.getTask(selectedTaskName);
 				var change;
 				if (left) {
-					change = -utils.DAY_MILLIS;
+					change = -taskTree.getScaleUnit();
 				} else if (right) {
-					change = +utils.DAY_MILLIS;
+					change = +taskTree.getScaleUnit();
 				}
 				var newDate = new Date(task.getStartDate().getTime() + change);
 				task.startDate = utils.formatDate(newDate);

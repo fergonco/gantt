@@ -4,7 +4,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	var width;
 	var svg;
 	var level1, level2, level3, level4;
-	
+
 	var timeDomain;
 	var taskNames;
 	var atemporalTaskNames;
@@ -37,7 +37,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	};
 	height = 1200;// document.body.clientHeight - margin.top -
 	// margin.bottom- 5;
-	width = 800;// document.body.clientWidth - margin.right - margin.left -
+	width = 1200;// document.body.clientWidth - margin.right - margin.left -
 	// 5;
 
 	d3.select("body").append("div").attr("class", "allscreen");
@@ -140,7 +140,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			var task = taskTree.getTask(d.taskName);
 			var dates = task.getPresentationTimeDomain();
 			var x = xScale(dates[d.dateIndex]);
-			if (d.dateIndex == 1) {
+			if (d.dateIndex != 1) {
 				x -= handleWidth;
 			}
 			return "translate(" + x + "," + yScale(d.taskName) + ")";
@@ -189,8 +189,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		updateTask(taskSelection);
 
 		// Atemporal tasks texts
-		var atemporalTaskSelection = level3.selectAll(".atemporal-tasks").data(
-				atemporalTaskNames);
+		var atemporalTaskSelection = level3.selectAll(".atemporal-tasks").data(atemporalTaskNames);
 		atemporalTaskSelection.exit().remove();
 		atemporalTaskSelection.enter().append("text");
 
@@ -208,6 +207,9 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			var task = taskTree.getTask(d);
 			var length = task.getEndDate().getTime() - task.getStartDate().getTime();
 			var newStartDate = xScale.invert(sourceX + dx);
+			var scaleUnit = taskTree.getScaleUnit();
+			newStartDate = new Date((scaleUnit * Math.floor(newStartDate.getTime() / scaleUnit)));
+
 			task.startDate = utils.formatDate(newStartDate);
 			task.endDate = utils.formatDate(new Date(newStartDate.getTime() + length));
 
@@ -285,6 +287,8 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 			dx += d3.event.dx;
 			var task = taskTree.getTask(d.taskName);
 			var newDate = xScale.invert(sourceX + dx);
+			var scaleUnit = taskTree.getScaleUnit();
+			newDate = new Date((scaleUnit * Math.floor(newDate.getTime() / scaleUnit)));
 			if (d.dateIndex == 0) {
 				task.startDate = utils.formatDate(newDate);
 			} else {
@@ -308,18 +312,60 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 					return xScale(new Date(d.getTime() + utils.DAY_MILLIS)) - xScale(d);
 				}).attr("height", dayHeight);
 
+		// Hours
+		var hours = [ 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 ];
+		var hoursSelection = level2.selectAll(".todayHours").data(hours);
+		hoursSelection.exit().remove();
+		hoursSelection.enter().insert("rect", ":first-child");
+		hoursSelection.attr("class", function(d) {
+			return "todayHours hour-" + d;
+		}).attr("x", function(d) {
+			return xScale(new Date(utils.today.getTime() + (d * 60 * 60 * 1000)));
+		}).attr("y", 0).attr("width", function(d) {
+			var date = new Date(utils.today.getTime() + (d * 60 * 60 * 1000));
+			return xScale(new Date(date.getTime() + 1000 * 60 * 60)) - xScale(date);
+		}).attr("height", height - margin.top - margin.bottom);
+
 		// Axis
 		svg.selectAll(".axis").remove();
 
 		var yAxis = d3.svg.axis().scale(yScale).orient("left").tickSize(1);
 		svg.append("g").attr("class", "y axis").call(yAxis);
-		var xAxis1 = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(
-				d3.time.format("%d/%m")).tickSize(1).tickPadding(8);
-		svg.append("g").attr("class", "x axis").attr("transform",
-				"translate(0, " + (height - margin.top - margin.bottom) + ")").call(xAxis1);
-		var xAxis2 = d3.svg.axis().scale(xScale).orient("top").tickFormat(d3.time.format("%d/%m"))
-				.tickSize(1).tickPadding(8);
-		svg.append("g").attr("class", "x axis").call(xAxis2);
+
+		var xAxis1 = d3.svg.axis().scale(xScale).tickSize(1).tickPadding(8);
+		var gXBottom = svg.append("g")//
+		.attr("class", "x axis")//
+		.attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")//
+		.style("font-size", "10px");
+		var gXTop = svg.append("g")//
+		.style("font-size", "10px")//
+		.attr("class", "x axis");
+
+		if (taskTree.getScaleType() == "day") {
+			var hourTicks = [];
+			for (var i = 0; i < hours.length; i++) {
+				hourTicks.push(new Date(utils.today.getTime() + (hours[i] * 60 * 60 * 1000)));
+			}
+			xAxis1.tickValues(hourTicks).tickFormat(d3.time.format("%H:%M"));
+			xAxis1.orient("top");
+			gXTop.call(xAxis1).selectAll("text")//
+			.style("text-anchor", "start")//
+			.attr("dx", ".2em")//
+			.attr("dy", ".3em")//
+			.attr("transform", "rotate(-25)");
+			xAxis1.orient("bottom");
+			gXBottom.call(xAxis1).selectAll("text")//
+			.style("text-anchor", "end")//
+			.attr("dx", ".2em")//
+			.attr("dy", ".3em")//
+			.attr("transform", "rotate(-25)");
+		} else {
+			xAxis1.tickFormat(d3.time.format("%d/%m"));
+			xAxis1.orient("top");
+			gXTop.call(xAxis1);
+			xAxis1.orient("bottom");
+			gXBottom.call(xAxis1);
+		}
 
 		var zoom = d3.behavior.zoom();
 		svg.call(zoom);

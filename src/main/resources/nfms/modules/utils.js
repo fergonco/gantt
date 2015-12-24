@@ -5,7 +5,9 @@ define([], function() {
 	today.setMilliseconds(0);
 
 	var formatDate = function(date) {
-		return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+		return (date.getUTCMonth() + 1) + "/" + date.getUTCDate() + "/" + date.getUTCFullYear()
+				+ " " + date.getUTCHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
+				+ " UTC";
 	}
 
 	var formatTime = function(timeSum) {
@@ -22,7 +24,7 @@ define([], function() {
 		if (seconds > 0) {
 			ret += seconds + "s";
 		}
-		
+
 		return ret;
 	}
 	return {

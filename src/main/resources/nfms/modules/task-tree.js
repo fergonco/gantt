@@ -4,6 +4,8 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 	var timeDomain = null;
 	var userFilter = null;
 	var userChildrenFilter = null;
+	var scaleType = "week";
+	var scaleUnit = utils.DAY_MILLIS;
 	var xScale;
 	var yScale;
 	var taskNames;
@@ -17,6 +19,12 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 
 	var FILTER_ALL = function(task) {
 		return task != ROOT;
+	};
+	var FILTER_NONE = function(task) {
+		return false;
+	};
+	var FILTER_SINGLE_TASKS = function(task) {
+		return !task.isGroup() && !task.isAtemporal();
 	};
 	var FILTER_ATEMPORAL = function(task) {
 		return task.isAtemporal();
@@ -373,12 +381,17 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		timeDomain = ROOT.getPresentationTimeDomain();
 		var childrenFilter = userChildrenFilter != null ? VISIT_ALL_CHILDREN
 				: VISIT_UNFOLDED_CHILDREN;
+		var taskFilter = userChildrenFilter != null ? FILTER_SINGLE_TASKS : FILTER_ALL;
+		var atemporalTaskFilter = userChildrenFilter != null ? FILTER_NONE : FILTER_ATEMPORAL;
 		visitTasks(ROOT, FILTER_ALL, childrenFilter, function(task, index) {
 			nameIndicesMap[task.taskName] = index;
 		});
-		taskNames = visitTasks(ROOT, FILTER_ALL, childrenFilter, NAME_EXTRACTOR);
-		atemporalTaskNames = visitTasks(ROOT, FILTER_ATEMPORAL, childrenFilter, NAME_EXTRACTOR);
-		xScale = d3.time.scale().domain(timeDomain).range([ 0, 800 ]).clamp(false);
+		taskNames = visitTasks(ROOT, taskFilter, childrenFilter, NAME_EXTRACTOR);
+		atemporalTaskNames = visitTasks(ROOT, atemporalTaskFilter, childrenFilter, NAME_EXTRACTOR);
+
+		var dayCount = (timeDomain[1].getTime() - timeDomain[0].getTime()) / utils.DAY_MILLIS;
+		var daySize = scaleType == "week" ? 30 : 400;
+		xScale = d3.time.scale().domain(timeDomain).range([ 0, daySize * dayCount ]).clamp(false);
 		yScale = d3.scale.ordinal().domain(taskNames).rangeRoundBands([ 0, taskNames.length * 20 ],
 				.1);
 		statusList = [];
@@ -394,6 +407,12 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 
 	bus.listen("plan", function(e, plan) {
 		ROOT.tasks = plan;
+		bus.send("set-scale", [ "week" ]);
+	});
+
+	bus.listen("set-scale", function(e, type) {
+		scaleType = type;
+		scaleUnit = scaleType == "week" ? utils.DAY_MILLIS : 30 * 60 * 1000;
 		bus.send("refresh-tree");
 	});
 
@@ -450,6 +469,12 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 		},
 		"getStatusList" : function() {
 			return statusList;
+		},
+		"getScaleType" : function() {
+			return scaleType;
+		},
+		"getScaleUnit" : function() {
+			return scaleUnit;
 		}
 	}
 });

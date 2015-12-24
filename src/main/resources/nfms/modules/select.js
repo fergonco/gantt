@@ -22,7 +22,8 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 		selectedTasksJoin.enter().append("rect", ":first-child");
 		var x1 = taskTree.getXScale()(taskTree.getTimeDomain()[0]);
 		var x2 = taskTree.getXScale()(taskTree.getTimeDomain()[1]);
-		var y1 = taskTree.getYScale()(selectedTask);
+		var margin = 3;
+		var y1 = taskTree.getYScale()(selectedTask) - margin;
 		selectedTasksJoin.attr("class", "taskSelection")//
 		.attr("y", 0)//
 		.attr("transform", function(d) {
@@ -30,7 +31,7 @@ define([ "message-bus", "task-tree", "d3" ], function(bus, taskTree) {
 			return "translate(" + x1 + "," + y1 + ")";
 		})//
 		.attr("width", x2 - x1)//
-		.attr("height", taskTree.getYScale().rangeBand());
+		.attr("height", taskTree.getYScale().rangeBand() + 2 * margin);
 
 		var container = d3.select(".allscreen").node();
 		container.scrollTop = y1 - container.clientHeight / 2;

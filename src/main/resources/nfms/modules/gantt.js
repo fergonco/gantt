@@ -50,11 +50,15 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	.attr("width", width + margin.left + margin.right)//
 	.attr("height", height + margin.top + margin.bottom)//
 	.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+	svg.append("defs").append("clipPath")//
+	.attr("id", "clipper")//
+	.append("path")//
+	.attr("d", "M 0 0 L " + width + " 0 L " + width + " " + height + " L 0 " + height + " Z");
 
-	level1 = svg.append("g");
-	level2 = svg.append("g");
-	level3 = svg.append("g");
-	level4 = svg.append("g");
+	level1 = svg.append("g").attr("id", "level1").style("clip-path", "url(#clipper)");
+	level2 = svg.append("g").attr("id", "level2").style("clip-path", "url(#clipper)");
+	level3 = svg.append("g").attr("id", "level3").style("clip-path", "url(#clipper)");
+	level4 = svg.append("g").attr("id", "level4").style("clip-path", "url(#clipper)");
 
 	var updateTask = function(selection) {
 		selection//
@@ -180,6 +184,18 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				function(d) {
 					return xScale(new Date(d.getTime() + 2 * utils.DAY_MILLIS)) - xScale(d);
 				}).attr("height", dayHeight);
+		var dx;
+		var drag = d3.behavior.drag().on("dragstart", function(d) {
+			dx = 0;
+		}).on("drag", function(d) {
+			dx = d3.event.dx;
+			if (dx != 0) {
+				var pannedMillis = xScale.invert(0).getTime() - xScale.invert(dx).getTime();
+				bus.send("pan", [ pannedMillis ]);
+				bus.send("refresh-tree");
+			}
+		});
+		weekendSelection.call(drag);
 
 		// Tasks
 		var taskSelection = level3.selectAll(".tasks").data(taskNames);
@@ -196,9 +212,8 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		updateAtemporalTask(atemporalTaskSelection);
 
 		// drag&drop tasks
-		var dx;
 		var sourceX;
-		var drag = d3.behavior.drag().on("dragstart", function(d) {
+		drag = d3.behavior.drag().on("dragstart", function(d) {
 			var task = taskTree.getTask(d);
 			dx = 0;
 			sourceX = xScale(task.getStartDate());
@@ -268,11 +283,11 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 				});
 			}
 		}
-		var taskDatesSelection = level4.selectAll(".taskdates").data(taskDates);
-		taskDatesSelection.exit().remove();
-		taskDatesSelection.enter().append("rect");
+		var taskHandlersSelection = level4.selectAll(".taskdates").data(taskDates);
+		taskHandlersSelection.exit().remove();
+		taskHandlersSelection.enter().append("rect");
 
-		updateTaskHandlers(taskDatesSelection);
+		updateTaskHandlers(taskHandlersSelection);
 
 		// drag&drop task date handlers
 		drag = d3.behavior.drag().on("dragstart", function(d) {
@@ -301,7 +316,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		}).on("dragend", function(d) {
 			bus.send("refresh-tree");
 		});
-		taskDatesSelection.call(drag);
+		taskHandlersSelection.call(drag);
 
 		// Today
 		var todaySelection = level2.selectAll(".today").data([ utils.today ]);

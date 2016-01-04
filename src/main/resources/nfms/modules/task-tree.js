@@ -4,6 +4,7 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 	var timeDomain = null;
 	var userFilter = null;
 	var userChildrenFilter = null;
+	var pan = 0;
 	var scaleType = "week";
 	var scaleUnit = utils.DAY_MILLIS;
 	var xScale;
@@ -379,6 +380,8 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 			decorateTask(parent, task);
 		});
 		timeDomain = ROOT.getPresentationTimeDomain();
+		timeDomain = [ new Date(timeDomain[0].getTime() + pan),
+				new Date(timeDomain[1].getTime() + pan) ];
 		var childrenFilter = userChildrenFilter != null ? VISIT_ALL_CHILDREN
 				: VISIT_UNFOLDED_CHILDREN;
 		var taskFilter = userChildrenFilter != null ? FILTER_SINGLE_TASKS : FILTER_ALL;
@@ -408,6 +411,10 @@ define([ "message-bus", "utils" ], function(bus, utils) {
 	bus.listen("plan", function(e, plan) {
 		ROOT.tasks = plan;
 		bus.send("set-scale", [ "week" ]);
+	});
+
+	bus.listen("pan", function(e, millis) {
+		pan += millis;
 	});
 
 	bus.listen("set-scale", function(e, type) {

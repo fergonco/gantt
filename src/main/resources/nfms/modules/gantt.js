@@ -52,8 +52,7 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 	.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 	svg.append("defs").append("clipPath")//
 	.attr("id", "clipper")//
-	.append("path")//
-	.attr("d", "M 0 0 L " + width + " 0 L " + width + " " + height + " L 0 " + height + " Z");
+	.append("path");
 
 	level1 = svg.append("g").attr("id", "level1").style("clip-path", "url(#clipper)");
 	level2 = svg.append("g").attr("id", "level2").style("clip-path", "url(#clipper)");
@@ -165,6 +164,8 @@ define([ "utils", "message-bus", "task-tree", "d3" ], function(utils, bus, taskT
 		height = (yRange[1] - yRange[0] + 1) * (1 + taskNames.length) + 30;
 		d3.select(".chart").attr("height", height);
 		d3.select(".chart g").attr("height", height);
+		d3.select("#clipper path")//
+		.attr("d", "M 0 0 L " + width + " 0 L " + width + " " + height + " L 0 " + height + " Z");
 
 		// Weekends
 		var dayX = function(d) {
